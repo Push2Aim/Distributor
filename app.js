@@ -206,47 +206,6 @@ function receivedAuthentication(event) {
  * 
  */
 
-function sendRequest(senderID, message) {
-    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-        .textRequest(message, {
-            sessionId: senderID
-        });
-
-    var out = null;
-    request.on('response', function (response) {
-        console.log(response);
-        out = response;
-    });
-
-    request.on('error', function (error) {
-        console.log(error);
-        out = error;
-    });
-    request.end();
-    return out;
-}
-function sendMessages(senderID, messages) {
-    messages.forEach(function (message) {
-        switch (message.type) {
-            case 0:
-                sendTextMessage(senderID, message.speech);
-                break;
-            case 1:
-                sendGenericMessage(senderID, message);
-                break;
-            case 2:
-                sendQuickReply(senderID, message);
-                break;
-            case 3:
-                sendImageMessage(senderID, message.imageUrl);
-                break;
-            case 4:
-                sendCustomPayload(senderID, message.facebook);
-                break;
-
-        }
-    });
-}
 function receivedMessage(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -282,10 +241,49 @@ function receivedMessage(event) {
     }
 
     if (messageText) {
-        sendMessages(senderID, sendRequest(senderID, message).result.fulfillment.messages);
+        sendRequest(senderID, message);
     } else if (messageAttachments) {
         sendTextMessage(senderID, "Message with attachment received");
     }
+}
+function sendRequest(senderID,message) {
+    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+        .textRequest(message, {
+            sessionId: senderID
+        });
+
+    request.on('response', function (response) {
+        console.log(response);
+        sendMessages(senderID, response.result.fulfillment.messages);
+    });
+
+    request.on('error', function (error) {
+        console.log(error);
+        sendTextMessage(senderID,"An Error accrued");
+    });
+    request.end();
+}
+function sendMessages(senderID, messages) {
+    messages.forEach(function (message) {
+        switch (message.type) {
+            case 0:
+                sendTextMessage(senderID, message.speech);
+                break;
+            case 1:
+                sendGenericMessage(senderID, message);
+                break;
+            case 2:
+                sendQuickReply(senderID, message);
+                break;
+            case 3:
+                sendImageMessage(senderID, message.imageUrl);
+                break;
+            case 4:
+                sendCustomPayload(senderID, message.facebook);
+                break;
+
+        }
+    });
 }
 
 
