@@ -6,22 +6,19 @@ const API_AI_ACCESS_TOKEN = process.env.API_AI_ACCESS_TOKEN;
 
 var app = apiai(API_AI_ACCESS_TOKEN);//<your client access token>
 
-function sendRequest(sessionId, message) {
-    var request = app.textRequest(message, {
-        sessionId: sessionId
-    });
+var message = "error";
+var sessionId = "0987654321";
 
-    var out = null;
-    request.on('response', function (response) {
-        console.log(response);
-        out = response;
-    });
+var request = app.textRequest(message, {
+    sessionId: sessionId
+});
 
-    request.on('error', function (error) {
-        console.log(error);
-        out = error;
-    });
-    request.end();
-    return out;
-}
+request.on('response', function (response) {
+    console.log(response);
+});
+
+request.on('error', function (error) {
+    console.log(error);
+});
+request.end();
 

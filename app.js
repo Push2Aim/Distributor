@@ -249,7 +249,7 @@ function receivedMessage(event) {
 function sendRequest(senderID,message) {
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
-            sessionId: senderID
+            sessionId: "0987654321"
         });
 
     request.on('response', function (response) {
@@ -259,7 +259,7 @@ function sendRequest(senderID,message) {
 
     request.on('error', function (error) {
         console.log(error);
-        sendTextMessage(senderID,"An Error accrued");
+        sendTextMessage(senderID,"An Error accrued: \n" + error);
     });
     request.end();
 }
