@@ -668,8 +668,8 @@ function sendQuickReply(recipientId, message) {
             text: message.title,
             quick_replies: message.replies.map(function (rep) {
                 return ({
-                    "content_type": rep,
-                    "title": "Action",
+                    "content_type": "text",
+                    "title": rep,
                     "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION"
                 });
             })
