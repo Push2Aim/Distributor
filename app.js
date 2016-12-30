@@ -237,7 +237,7 @@ function receivedMessage(event) {
             messageId, quickReplyPayload);
 
         // sendRequest(senderID, messageText);
-        sendTextMessage(senderID, "Quick reply tapped");
+        sendTextMessage(senderID, messageText);
         return;
     }
 
