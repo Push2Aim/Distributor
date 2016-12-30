@@ -14,7 +14,7 @@ var request = app.textRequest(message, {
 });
 
 request.on('response', function (response) {
-    console.log(response);
+    console.log(response.result.fulfillment.messages);
 });
 
 request.on('error', function (error) {

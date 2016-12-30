@@ -241,15 +241,17 @@ function receivedMessage(event) {
     }
 
     if (messageText) {
-        sendRequest(senderID, message);
+        sendRequest(senderID, messageText);
     } else if (messageAttachments) {
         sendTextMessage(senderID, "Message with attachment received");
     }
 }
-function sendRequest(senderID,message) {
+
+// exports.sendRequest = sendRequest;
+function sendRequest (senderID,message) {
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
-            sessionId: "0987654321"
+            sessionId: senderID
         });
 
     request.on('response', function (response) {
@@ -262,7 +264,7 @@ function sendRequest(senderID,message) {
         sendTextMessage(senderID,"An Error accrued: \n" + error);
     });
     request.end();
-}
+};
 function sendMessages(senderID, messages) {
     messages.forEach(function (message) {
         switch (message.type) {
