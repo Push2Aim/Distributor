@@ -16,7 +16,9 @@ const
     express = require('express'),
     https = require('https'),
     request = require('request'),
-    apiAI = require('apiai');
+    apiAI = require('apiai'),
+    async = require('async');
+
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -249,7 +251,7 @@ function receivedMessage(event) {
 }
 
 // exports.sendRequest = sendRequest;
-function sendRequest (senderID,message) {
+function sendRequest(senderID, message) {
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
             sessionId: senderID
@@ -262,13 +264,13 @@ function sendRequest (senderID,message) {
 
     request.on('error', function (error) {
         console.log(error);
-        sendTextMessage(senderID,"An Error accrued: \n" + error);
+        sendTextMessage(senderID, "An Error accrued: \n" + error);
     });
     request.end();
-};
+}
 function sendMessages(senderID, messages) {
     // messages.forEach(function (message) {
-    for (let message of messages)
+    async.eachSeries(messages, function (message) {
         switch (message.type) {
             case 0:
                 sendTextMessage(senderID, message.speech);
@@ -286,7 +288,7 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook);
                 break;
         }
-    // });
+    });
 }
 
 
@@ -575,7 +577,7 @@ function sendGenericMessage(recipientId, message) {
                         item_url: message.imageUrl,
                         image_url: message.imageUrl,
                         buttons: message.buttons.map(function (btn) {
-                            return({
+                            return ({
                                 type: "web_url",
                                 url: btn.postback,
                                 title: btn.text
