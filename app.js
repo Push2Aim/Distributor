@@ -288,7 +288,7 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook);
                 break;
         }
-    });
+    }, err => console.log(err));
 }
 
 
