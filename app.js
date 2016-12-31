@@ -267,7 +267,8 @@ function sendRequest (senderID,message) {
     request.end();
 };
 function sendMessages(senderID, messages) {
-    messages.forEach(function (message) {
+    // messages.forEach(function (message) {
+    for (let message of messages)
         switch (message.type) {
             case 0:
                 sendTextMessage(senderID, message.speech);
@@ -284,9 +285,8 @@ function sendMessages(senderID, messages) {
             case 4:
                 sendCustomPayload(senderID, message.facebook);
                 break;
-
         }
-    });
+    // });
 }
 
 
