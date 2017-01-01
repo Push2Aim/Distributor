@@ -780,7 +780,7 @@ function callSendAPI(messageData, callback) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
-                setTimeout(callback(), 5000);
+                setTimeout(callback, 5000);
 
             } else {
                 console.log("Successfully called Send API for recipient %s",
