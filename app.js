@@ -782,7 +782,7 @@ function callSendAPI(messageData, callback, timeOut) {
                 if (timeOut > 0) {
                     sendTypingOn(messageData.recipient.id);
                     setTimeout(callback, timeOut);
-                }
+                } else callback();
 
             } else {
                 console.log("Successfully called Send API for recipient %s",
