@@ -269,7 +269,9 @@ function sendRequest(senderID, message) {
     request.end();
 }
 function sendMessages(senderID, messages) {
-    let switchMessageType = function(message) {
+    ;
+    // messages.forEach(function (message) {
+    async.eachSeries(messages, function (message, callback) {
         switch (message.type) {
             case 0:
                 sendTextMessage(senderID, message.speech);
@@ -287,12 +289,8 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook);
                 break;
         }
-    };
-    // messages.forEach(function (message) {
-    async.eachSeries(messages, function (message, callback) {
-        switchMessageType(message);
         callback();
-    }, err => console.log("err: " + err));
+    });
 
 }
 
