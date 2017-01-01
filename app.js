@@ -269,31 +269,28 @@ function sendRequest(senderID, message) {
     request.end();
 }
 function sendMessages(senderID, messages) {
-    ;
-    // messages.forEach(function (message) {
     async.eachSeries(messages, function (message, callback) {
         switch (message.type) {
             case 0:
-                sendTextMessage(senderID, message.speech);
+                sendTextMessage(senderID, message.speech, callback);
                 break;
             case 1:
-                sendGenericMessage(senderID, message);
+                sendGenericMessage(senderID, message, callback);
                 break;
             case 2:
-                sendQuickReply(senderID, message);
+                sendQuickReply(senderID, message, callback);
                 break;
             case 3:
-                sendImageMessage(senderID, message.imageUrl);
+                sendImageMessage(senderID, message.imageUrl, callback);
                 break;
             case 4:
-                sendCustomPayload(senderID, message.facebook);
+                sendCustomPayload(senderID, message.facebook, callback);
                 break;
         }
-        callback();
+    }, error => {
+        if (error) console.error(error);
     });
-
 }
-
 /*
  * Delivery Confirmation Event
  *
@@ -386,7 +383,7 @@ function receivedAccountLink(event) {
  * Send an image using the Send API.
  *
  */
-function sendImageMessage(recipientId, url) {
+function sendImageMessage(recipientId, url, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -401,10 +398,10 @@ function sendImageMessage(recipientId, url) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, callback);
 }
 
-function sendCustomPayload(recipientId, payload) {
+function sendCustomPayload(recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -414,7 +411,7 @@ function sendCustomPayload(recipientId, payload) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, callback);
 }
 
 /*
@@ -509,7 +506,8 @@ function sendFileMessage(recipientId) {
  * Send a text message using the Send API.
  *
  */
-function sendTextMessage(recipientId, messageText) {
+function sendTextMessage(recipientId, messageText,
+                         callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -520,7 +518,7 @@ function sendTextMessage(recipientId, messageText) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, callback);
 }
 
 /*
@@ -563,7 +561,7 @@ function sendButtonMessage(recipientId) {
  * Send a Structured Message (Generic Message type) using the Send API.
  *
  */
-function sendGenericMessage(recipientId, message) {
+function sendGenericMessage(recipientId, message, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -591,7 +589,7 @@ function sendGenericMessage(recipientId, message) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, callback);
 }
 
 /*
@@ -664,7 +662,7 @@ function sendReceiptMessage(recipientId) {
  * Send a message with Quick Reply buttons.
  *
  */
-function sendQuickReply(recipientId, message) {
+function sendQuickReply(recipientId, message, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -681,7 +679,7 @@ function sendQuickReply(recipientId, message) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, callback);
 }
 
 /*
@@ -767,7 +765,7 @@ function sendAccountLinking(recipientId) {
  * get the message id in a response 
  *
  */
-function callSendAPI(messageData) {
+function callSendAPI(messageData, callback) {
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: PAGE_ACCESS_TOKEN},
@@ -782,12 +780,13 @@ function callSendAPI(messageData) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
+                callback();
             } else {
                 console.log("Successfully called Send API for recipient %s",
                     recipientId);
             }
         } else {
-            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            callback("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
         }
     });
 }
