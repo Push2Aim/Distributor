@@ -287,6 +287,7 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook, callback);
                 break;
         }
+        sendTypingOn(senderID);
     }, error => {
         if (error) console.error(error);
     });
