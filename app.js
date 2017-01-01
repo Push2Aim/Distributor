@@ -252,6 +252,7 @@ function receivedMessage(event) {
 
 // exports.sendRequest = sendRequest;
 function sendRequest(senderID, message) {
+    sendTypingOn(senderID);
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
             sessionId: senderID
@@ -287,7 +288,6 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook, callback);
                 break;
         }
-        sendTypingOn(senderID);
     }, error => {
         if (error) console.error(error);
     });
