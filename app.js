@@ -268,26 +268,26 @@ function sendRequest(senderID, message) {
     request.end();
 }
 function sendMessages(senderID, messages) {
-    async.eachSeries(messages, function (message, callback) {
+    async.eachOfSeries(messages, function (message, index, callback) {
+        var timeOut = index == messages.length - 1 ? 0 : 5000;
         switch (message.type) {
             case 0:
-                sendTextMessage(senderID, message.speech, callback);
+                sendTextMessage(senderID, message.speech, callback, timeOut);
                 break;
             case 1:
-                sendGenericMessage(senderID, message, callback);
+                sendGenericMessage(senderID, message, callback, timeOut);
                 break;
             case 2:
-                sendQuickReply(senderID, message, callback);
+                sendQuickReply(senderID, message, callback, timeOut);
                 break;
             case 3:
-                sendImageMessage(senderID, message.imageUrl, callback);
+                sendImageMessage(senderID, message.imageUrl, callback, timeOut);
                 break;
             case 4:
-                sendCustomPayload(senderID, message.facebook, callback);
+                sendCustomPayload(senderID, message.facebook, callback, timeOut);
                 break;
         }
     }, error => {
-        sendTypingOff(senderID);
         if (error) console.error(error);
     });
 }
@@ -383,7 +383,7 @@ function receivedAccountLink(event) {
  * Send an image using the Send API.
  *
  */
-function sendImageMessage(recipientId, url, callback) {
+function sendImageMessage(recipientId, url, callback, timeOut) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -398,10 +398,10 @@ function sendImageMessage(recipientId, url, callback) {
         }
     };
 
-    callSendAPI(messageData, callback);
+    callSendAPI(messageData, callback, timeOut);
 }
 
-function sendCustomPayload(recipientId, payload, callback) {
+function sendCustomPayload(recipientId, payload, callback, timeOut) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -411,7 +411,7 @@ function sendCustomPayload(recipientId, payload, callback) {
         }
     };
 
-    callSendAPI(messageData, callback);
+    callSendAPI(messageData, callback, timeOut);
 }
 
 /*
@@ -506,8 +506,7 @@ function sendFileMessage(recipientId) {
  * Send a text message using the Send API.
  *
  */
-function sendTextMessage(recipientId, messageText,
-                         callback) {
+function sendTextMessage(recipientId, messageText, callback, timeOut) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -518,7 +517,7 @@ function sendTextMessage(recipientId, messageText,
         }
     };
 
-    callSendAPI(messageData, callback);
+    callSendAPI(messageData, callback, timeOut);
 }
 
 /*
@@ -561,7 +560,7 @@ function sendButtonMessage(recipientId) {
  * Send a Structured Message (Generic Message type) using the Send API.
  *
  */
-function sendGenericMessage(recipientId, message, callback) {
+function sendGenericMessage(recipientId, message, callback, timeOut) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -589,7 +588,7 @@ function sendGenericMessage(recipientId, message, callback) {
         }
     };
 
-    callSendAPI(messageData, callback);
+    callSendAPI(messageData, callback, timeOut);
 }
 
 /*
@@ -662,7 +661,7 @@ function sendReceiptMessage(recipientId) {
  * Send a message with Quick Reply buttons.
  *
  */
-function sendQuickReply(recipientId, message, callback) {
+function sendQuickReply(recipientId, message, callback, timeOut) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -679,7 +678,7 @@ function sendQuickReply(recipientId, message, callback) {
         }
     };
 
-    callSendAPI(messageData, callback);
+    callSendAPI(messageData, callback, timeOut);
 }
 
 /*
@@ -765,7 +764,7 @@ function sendAccountLinking(recipientId) {
  * get the message id in a response 
  *
  */
-function callSendAPI(messageData, callback) {
+function callSendAPI(messageData, callback, timeOut) {
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: PAGE_ACCESS_TOKEN},
@@ -780,8 +779,10 @@ function callSendAPI(messageData, callback) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
-                sendTypingOn(messageData.recipient.id);
-                setTimeout(callback, 5000);
+                if (timeOut > 0) {
+                    sendTypingOn(messageData.recipient.id);
+                    setTimeout(callback, timeOut);
+                }
 
             } else {
                 console.log("Successfully called Send API for recipient %s",
