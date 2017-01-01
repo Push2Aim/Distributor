@@ -287,6 +287,7 @@ function sendMessages(senderID, messages) {
                 break;
         }
     }, error => {
+        sendTypingOff(senderID);
         if (error) console.error(error);
     });
 }
