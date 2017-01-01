@@ -239,7 +239,6 @@ function receivedMessage(event) {
             messageId, quickReplyPayload);
 
         sendRequest(senderID, messageText);
-        // sendTextMessage(senderID, messageText);
         return;
     }
 
@@ -250,7 +249,6 @@ function receivedMessage(event) {
     }
 }
 
-// exports.sendRequest = sendRequest;
 function sendRequest(senderID, message) {
     sendTypingOn(senderID);
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
@@ -781,6 +779,7 @@ function callSendAPI(messageData, callback) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
+                sendTypingOn(messageData.recipient.id);
                 setTimeout(callback, 5000);
 
             } else {
