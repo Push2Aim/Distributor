@@ -269,8 +269,7 @@ function sendRequest(senderID, message) {
     request.end();
 }
 function sendMessages(senderID, messages) {
-    // messages.forEach(function (message) {
-    async.eachSeries(messages, function (message) {
+    let switchMessageType = function(message) {
         switch (message.type) {
             case 0:
                 sendTextMessage(senderID, message.speech);
@@ -288,14 +287,19 @@ function sendMessages(senderID, messages) {
                 sendCustomPayload(senderID, message.facebook);
                 break;
         }
-    }, err => console.log("err: "+ err));
-}
+    };
+    // messages.forEach(function (message) {
+    async.eachSeries(messages, function (message, callback) {
+        switchMessageType(message);
+        callback();
+    }, err => console.log("err: " + err));
 
+}
 
 /*
  * Delivery Confirmation Event
  *
- * This event is sent to confirm the delivery of a message. Read more about 
+ * This event is sent to confirm the delivery of a message. Read more about
  * these fields at https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-delivered
  *
  */
