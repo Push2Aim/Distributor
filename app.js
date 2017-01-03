@@ -338,6 +338,7 @@ function receivedPostback(event) {
 
     // When a postback is called, we'll send a message back to the sender to
     // let them know it was successful
+
     sendTextMessage(senderID, "Postback called");
 }
 
@@ -789,7 +790,8 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            callback("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
         }
     });
 }
