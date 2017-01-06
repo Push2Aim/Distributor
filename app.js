@@ -238,18 +238,43 @@ function receivedMessage(event) {
         console.log("Quick reply for message %s with payload %s",
             messageId, quickReplyPayload);
 
-        sendRequest(senderID, messageText);
+        sendTextRequest(senderID, messageText);
         return;
     }
 
     if (messageText) {
-        sendRequest(senderID, messageText);
+        sendTextRequest(senderID, messageText);
     } else if (messageAttachments) {
-        sendTextMessage(senderID, "Message with attachment received");
+        //ThumbsUpSticker: {"mid":"mid.1483466706080:70a65f8088","seq":48327,"sticker_id":369239263222822,"attachments":[{"type":"image","payload":{"url":"https://scontent.xx.fbcdn.net/t39.1997-6/851557_369239266556155_759568595_n.png?_nc_ad=z-m","sticker_id":369239263222822}}]}
+        sendEventRequest(senderID, "RANDOM_STUFF");
     }
 }
+// exports.sendEventRequest = sendEventRequest;
+function sendEventRequest(senderID, eventName) {
+    sendTypingOn(senderID);
+    let event = {
+        name: eventName,
+        data: {}
+    };
+    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+        .eventRequest(event, {
+            sessionId: senderID
+        });
 
-function sendRequest(senderID, message) {
+    request.on('response', function (response) {
+        console.log(response);
+        sendMessages(senderID, response.result.fulfillment.messages);
+    });
+
+    request.on('error', function (error) {
+        console.log(error);
+        sendTextMessage(senderID, "An Error accrued: \n" + error);
+    });
+    request.end();
+}
+
+exports.sendTextRequest = sendTextRequest;
+function sendTextRequest(senderID, message) {
     sendTypingOn(senderID);
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
@@ -783,7 +808,7 @@ function callSendAPI(messageData, callback, timeOut) {
                 if (timeOut > 0) {
                     sendTypingOn(messageData.recipient.id);
                     setTimeout(callback, timeOut);
-                } else callback();
+                } else callback;
 
             } else {
                 console.log("Successfully called Send API for recipient %s",
@@ -791,7 +816,7 @@ function callSendAPI(messageData, callback, timeOut) {
             }
         } else {
             console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
-            callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
+            // callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
         }
     });
 }
@@ -804,5 +829,5 @@ app.listen(app.get('port'), function () {
 });
 
 
-module.exports = app;
+// module.exports = app;
 

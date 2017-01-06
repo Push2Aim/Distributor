@@ -35,3 +35,6 @@ Thumbs.db
 
 # Facebook
 .npm
+
+# tests
+test*.js
