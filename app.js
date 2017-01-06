@@ -251,7 +251,6 @@ function receivedMessage(event) {
 }
 // exports.sendEventRequest = sendEventRequest;
 function sendEventRequest(senderID, eventName) {
-    sendTypingOn(senderID);
     let event = {
         name: eventName,
         data: {}
@@ -261,26 +260,22 @@ function sendEventRequest(senderID, eventName) {
             sessionId: senderID
         });
 
-    request.on('response', function (response) {
-        console.log(response);
-        sendMessages(senderID, response.result.fulfillment.messages);
-    });
-
-    request.on('error', function (error) {
-        console.log(error);
-        sendTextMessage(senderID, "An Error accrued: \n" + error);
-    });
-    request.end();
+    sendApiAiRequest(request, senderID);
 }
 
-exports.sendTextRequest = sendTextRequest;
+// exports.sendTextRequest = sendTextRequest;
 function sendTextRequest(senderID, message) {
-    sendTypingOn(senderID);
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
             sessionId: senderID
         });
 
+    sendApiAiRequest(request, senderID);
+}
+
+function sendApiAiRequest (request, senderID) {
+    sendTypingOn(senderID);
+
     request.on('response', function (response) {
         console.log(response);
         sendMessages(senderID, response.result.fulfillment.messages);
@@ -291,7 +286,8 @@ function sendTextRequest(senderID, message) {
         sendTextMessage(senderID, "An Error accrued: \n" + error);
     });
     request.end();
-}
+};
+
 function sendMessages(senderID, messages) {
     async.eachOfSeries(messages, function (message, index, callback) {
         var timeOut = index == messages.length - 1 ? 0 : 5000;
@@ -829,5 +825,5 @@ app.listen(app.get('port'), function () {
 });
 
 
-// module.exports = app;
+module.exports = app;
 
