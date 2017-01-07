@@ -278,7 +278,10 @@ function sendApiAiRequest (request, senderID) {
 
     request.on('response', function (response) {
         console.log(response);
-        sendMessages(senderID, response.result.fulfillment.messages);
+        let messages = response.result.fulfillment.data
+        && response.result.fulfillment.data.distributor ?
+            response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
+        sendMessages(senderID, messages);
     });
 
     request.on('error', function (error) {
