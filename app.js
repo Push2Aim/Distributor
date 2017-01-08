@@ -87,12 +87,12 @@ app.post('/webhook', function (req, res) {
             pageEntry.messaging.forEach(function (messagingEvent) {
                 if (messagingEvent.optin) {
                     receivedAuthentication(messagingEvent);
+                } else if (messagingEvent.postback) {
+                    receivedPostback(messagingEvent);
                 } else if (messagingEvent.message) {
                     receivedMessage(messagingEvent);
                 } else if (messagingEvent.delivery) {
                     receivedDeliveryConfirmation(messagingEvent);
-                } else if (messagingEvent.postback) {
-                    receivedPostback(messagingEvent);
                 } else if (messagingEvent.read) {
                     receivedMessageRead(messagingEvent);
                 } else if (messagingEvent.account_linking) {
@@ -363,7 +363,8 @@ function receivedPostback(event) {
     // When a postback is called, we'll send a message back to the sender to
     // let them know it was successful
 
-    sendTextMessage(senderID, "Postback called");
+    // sendTextMessage(senderID, "Postback called");
+    sendEventRequest(senderID, payload);
 }
 
 /*
