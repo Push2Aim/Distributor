@@ -293,8 +293,11 @@ function sendApiAiRequest (request, senderID) {
 
 function sendMessages(senderID, messages) {
     async.eachOfSeries(messages, function (message, index, callback) {
-        var timeOut = index == messages.length - 1 ? 0 : 5000;
+        let timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
+            case -1:
+                setTimeout(callback, message.rest);
+                break;
             case 0:
                 sendTextMessage(senderID, message.speech, callback, timeOut);
                 break;
@@ -805,7 +808,7 @@ function callSendAPI(messageData, callback, timeOut) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
-                if (timeOut > 0) {
+                if (timeOut >= 0) {
                     sendTypingOn(messageData.recipient.id);
                     setTimeout(callback, timeOut);
                 } else callback;
