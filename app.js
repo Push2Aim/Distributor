@@ -293,10 +293,10 @@ function sendApiAiRequest (request, senderID) {
 
 function sendMessages(senderID, messages) {
     async.eachOfSeries(messages, function (message, index, callback) {
-        let timeOut = index == messages.length - 1 ? -1 : 0;
+        var timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
             case -1:
-                setTimeout(callback, message.rest);
+                takeABreak(senderID, callback, message.rest);
                 break;
             case 0:
                 sendTextMessage(senderID, message.speech, callback, timeOut);
@@ -793,6 +793,10 @@ function sendAccountLinking(recipientId) {
  * get the message id in a response 
  *
  */
+let takeABreak = function (senderID, callback, timeOut) {
+    sendTypingOn(senderID);
+    setTimeout(callback, timeOut);
+};
 function callSendAPI(messageData, callback, timeOut) {
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -809,8 +813,8 @@ function callSendAPI(messageData, callback, timeOut) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
                 if (timeOut >= 0) {
-                    sendTypingOn(messageData.recipient.id);
-                    setTimeout(callback, timeOut);
+                    let senderID = messageData.recipient.id;
+                    takeABreak(senderID, callback, timeOut);
                 } else callback;
 
             } else {
