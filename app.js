@@ -801,7 +801,9 @@ let takeABreak = function (senderID, callback, timeOut) {
 };
 function callSendAPI(messageData, callback, timeOut) {
     timeOut = timeOut || -1;
-    callback = callback || () => console.log("no callback()");
+    callback = callback || function () {
+            console.log("no callback()")
+        };
 
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
