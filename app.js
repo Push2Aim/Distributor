@@ -280,7 +280,10 @@ function sendApiAiRequest (request, senderID) {
         let messages = response.result.fulfillment.data
         && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
+
+        if (messages)
         sendMessages(senderID, messages);
+        else sendTextMessage(senderID, response.result.fulfillment.speech);
     });
 
     request.on('error', function (error) {
@@ -797,6 +800,9 @@ let takeABreak = function (senderID, callback, timeOut) {
     setTimeout(callback, timeOut);
 };
 function callSendAPI(messageData, callback, timeOut) {
+    timeOut = timeOut || -1;
+    callback = callback || () => console.log("no callback()");
+
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: PAGE_ACCESS_TOKEN},
