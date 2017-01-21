@@ -280,7 +280,9 @@ function sendApiAiRequest (request, senderID) {
         let messages = response.result.fulfillment.data
         && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
+        if (messages)
         sendMessages(senderID, messages);
+        else sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
     request.on('error', function (error) {
@@ -289,6 +291,20 @@ function sendApiAiRequest (request, senderID) {
     });
     request.end();
 };
+
+function sendSpeech(recipientId, messageText) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: messageText,
+            metadata: "DEVELOPER_DEFINED_METADATA"
+        }
+    };
+
+    callSendAPI(messageData);
+}
 
 function sendMessages(senderID, messages) {
     async.eachOfSeries(messages, function (message, index, callback) {
