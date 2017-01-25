@@ -280,6 +280,7 @@ function sendEventRequest(senderID, eventName) {
 function sendTextRequest(senderID, message) {
     userInfoRequest(senderID)
         .then((userInfo) => {
+        console.log("userInfo:" + JSON.stringify(userInfo));
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .textRequest(message, {
             sessionId: senderID,
