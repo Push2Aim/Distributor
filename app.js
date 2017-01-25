@@ -250,34 +250,17 @@ function receivedMessage(event) {
 }
 // exports.sendEventRequest = sendEventRequest;
 function sendEventRequest(senderID, eventName) {
+    userInfoRequest(senderID)
+        .then((userInfo) => {
+
     let event = {
         name: eventName,
         data: {}
     };
     var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
         .eventRequest(event, {
-            sessionId: senderID
-        });
-
-    sendApiAiRequest(request, senderID);
-}
-
-// exports.sendTextRequest = sendTextRequest;
-function sendTextRequest(senderID, message) {
-    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-        .textRequest(message, {
-            sessionId: senderID
-        });
-
-    sendApiAiRequest(request, senderID);
-}
-
-function sendApiAiRequest (request, senderID) {
-    sendTypingOn(senderID);
-
-    userInfoRequest(senderID)
-        .then((userInfo) => {
-            request.append("contexts", [
+            sessionId: senderID,
+            contexts: [
                 {
                     name: "generic",
                     parameters: {
@@ -285,9 +268,42 @@ function sendApiAiRequest (request, senderID) {
                     }
                 }
             ]
-            );
+        });
 
-            request.on('response', function (response) {
+            sendApiAiRequest(request, senderID);
+        }).catch(err => {
+        console.error(err);
+    });
+}
+
+// exports.sendTextRequest = sendTextRequest;
+function sendTextRequest(senderID, message) {
+    userInfoRequest(senderID)
+        .then((userInfo) => {
+    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+        .textRequest(message, {
+            sessionId: senderID,
+            contexts: [
+                {
+                    name: "generic",
+                    parameters: {
+                        facebook_user_name: userInfo.first_name
+                    }
+                }
+            ]
+        });
+
+    sendApiAiRequest(request, senderID);
+        }).catch(err => {
+        console.error(err);
+    });
+
+}
+
+function sendApiAiRequest (request, senderID) {
+    sendTypingOn(senderID);
+
+    request.on('response', function (response) {
                 console.log(response);
                 let messages = response.result.fulfillment.data
                 && response.result.fulfillment.data.distributor ?
@@ -302,9 +318,7 @@ function sendApiAiRequest (request, senderID) {
                 sendTextMessage(senderID, "An Error accrued: \n" + error);
             });
             request.end();
-        }).catch(err => {
-        console.error(err);
-    });
+
 };
 
 function userInfoRequest(userId) {
