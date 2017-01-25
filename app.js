@@ -275,22 +275,55 @@ function sendTextRequest(senderID, message) {
 function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
-    request.on('response', function (response) {
-        console.log(response);
-        let messages = response.result.fulfillment.data
-        && response.result.fulfillment.data.distributor ?
-            response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
-        if (messages)
-        sendMessages(senderID, messages);
-        else sendSpeech(senderID, response.result.fulfillment.speech);
-    });
+    userInfoRequest(sender)
+        .then((userInfo) => {
+            request.append("contexts", [
+                {
+                    name: "generic",
+                    parameters: {
+                        facebook_user_name: userInfo.first_name
+                    }
+                }
+            ]
+            );
 
-    request.on('error', function (error) {
-        console.log(error);
-        sendTextMessage(senderID, "An Error accrued: \n" + error);
+            request.on('response', function (response) {
+                console.log(response);
+                let messages = response.result.fulfillment.data
+                && response.result.fulfillment.data.distributor ?
+                    response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
+                if (messages)
+                    sendMessages(senderID, messages);
+                else sendSpeech(senderID, response.result.fulfillment.speech);
+            });
+
+            request.on('error', function (error) {
+                console.log(error);
+                sendTextMessage(senderID, "An Error accrued: \n" + error);
+            });
+            request.end();
+        }).catch(err => {
+        console.error(err);
     });
-    request.end();
 };
+
+function userInfoRequest(userId) {
+    return new Promise((resolve, reject) => {
+        request({
+                method: 'GET',
+                uri: "https://graph.facebook.com/v2.6/" + userId + "?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=" + PAGE_ACCESS_TOKEN
+            },
+            function (error, response) {
+                if (error) {
+                    console.error('Error while userInfoRequest: ', error);
+                    reject(error);
+                } else {
+                    console.log('userInfoRequest result: ', response.body);
+                    resolve(response.body);
+                }
+            });
+    });
+}
 
 function sendSpeech(recipientId, messageText) {
     var messageData = {
