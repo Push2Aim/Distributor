@@ -275,7 +275,7 @@ function sendTextRequest(senderID, message) {
 function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
-    userInfoRequest(sender)
+    userInfoRequest(senderID)
         .then((userInfo) => {
             request.append("contexts", [
                 {
