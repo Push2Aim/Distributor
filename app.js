@@ -284,31 +284,29 @@ function sendEventRequest(senderID, eventName) {
 function sendTextRequest(senderID, message) {
     userInfoRequest(senderID)
         .then((userInfo) => {
+            userInfo = JSON.parse(userInfo);
             console.log("userInfo: " + JSON.stringify(userInfo));
             console.log(userInfo.first_name + "; " + userInfo.last_name);
 
-    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-        .textRequest(message, {
-            sessionId: senderID,
-            contexts: [
-                {
-                    name: "userInfo",
-                    parameters: {
-                        facebook_user_name: userInfo.first_name,
-                        facebook_last_name: userInfo.last_name,
-                        facebook_locale: userInfo.locale,
-                        facebook_timezone: userInfo.timezone,
-                        facebook_gendere: userInfo.gender,
-                    }
-                }
-            ]
-        });
+            var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+                .textRequest(message, {
+                    sessionId: senderID,
+                    contexts: [
+                        {
+                            name: "userInfo",
+                            parameters: {
+                                facebook_user_name: userInfo.first_name,
+                                facebook_last_name: userInfo.last_name,
+                                facebook_locale: userInfo.locale,
+                                facebook_timezone: userInfo.timezone,
+                                facebook_gendere: userInfo.gender,
+                            }
+                        }
+                    ]
+                });
 
-    sendApiAiRequest(request, senderID);
-        }).catch(err => {
-        console.error(err);
-    });
-
+            sendApiAiRequest(request, senderID);
+        }).catch(err => console.error(err));
 }
 
 function sendApiAiRequest (request, senderID) {
