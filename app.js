@@ -284,10 +284,6 @@ function sendEventRequest(senderID, eventName) {
 function sendTextRequest(senderID, message) {
     userInfoRequest(senderID)
         .then((userInfo) => {
-            userInfo = JSON.parse(userInfo);
-            console.log("userInfo: " + JSON.stringify(userInfo));
-            console.log(userInfo.first_name + "; " + userInfo.last_name);
-
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .textRequest(message, {
                     sessionId: senderID,
@@ -342,7 +338,7 @@ function userInfoRequest(userId) {
                     reject(error);
                 } else {
                     console.log('userInfoRequest result: ', response.body);
-                    resolve(response.body);
+                    resolve(JSON.parse(response.body));
                 }
             });
     });
