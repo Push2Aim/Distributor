@@ -386,7 +386,10 @@ function sendMessages(senderID, messages) {
                 break;
         }
     }, error => {
-        if (error) console.error(error);
+        if (error) {
+            console.error(error);
+            sendSpeech(senderID,"Ups, something went wrong");
+        }
     });
 }
 /*
