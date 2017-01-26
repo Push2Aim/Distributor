@@ -894,7 +894,7 @@ function callSendAPI(messageData, callback, timeOut) {
             }
         } else {
             console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
-            // callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
+            callback(error);
         }
     });
 }
