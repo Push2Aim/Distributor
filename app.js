@@ -313,7 +313,7 @@ function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
     request.on('response', function (response) {
-                console.log(response);
+                console.log(JSON.stringify(response));
                 let messages = response.result.fulfillment.data
                 && response.result.fulfillment.data.distributor ?
                     response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
