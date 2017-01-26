@@ -264,7 +264,11 @@ function sendEventRequest(senderID, eventName) {
                 {
                     name: "generic",
                     parameters: {
-                        facebook_user_name: userInfo.first_name
+                        facebook_user_name: userInfo.first_name,
+                        facebook_last_name: userInfo.last_name,
+                        facebook_locale: userInfo.locale,
+                        facebook_timezone: userInfo.timezone,
+                        facebook_gendere: userInfo.gender,
                     }
                 }
             ]
