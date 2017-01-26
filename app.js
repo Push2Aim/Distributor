@@ -262,7 +262,7 @@ function sendEventRequest(senderID, eventName) {
             sessionId: senderID,
             contexts: [
                 {
-                    name: "generic",
+                    name: "userInfo",
                     parameters: {
                         facebook_user_name: userInfo.first_name,
                         facebook_last_name: userInfo.last_name,
@@ -290,7 +290,7 @@ function sendTextRequest(senderID, message) {
             sessionId: senderID,
             contexts: [
                 {
-                    name: "generic",
+                    name: "userInfo",
                     parameters: {
                         facebook_user_name: userInfo.first_name,
                         facebook_last_name: userInfo.last_name,
