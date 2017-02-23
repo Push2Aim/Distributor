@@ -30,6 +30,24 @@ var dotenv = require('dotenv');
 // Load environment variables from .env file
 dotenv.load();
 
+wakeUp(process.env.ADDRESSES.split(","));
+function wakeUp(addresses) {
+    addresses.map((uri) => {
+        request({
+                method: 'GET',
+                uri: uri
+            },
+            function (error, response) {
+                if (error) {
+                    console.error('Error while userInfoRequest: ', error);
+                } else {
+                    console.log(uri+' result: ', response.body);
+                }
+            });
+    });
+}
+
+
 // App Secret can be retrieved from the App Dashboard
 const APP_SECRET = (process.env.MESSENGER_APP_SECRET);
 
@@ -323,8 +341,7 @@ function sendApiAiRequest (request, senderID) {
                 sendTextMessage(senderID, "An Error accrued: \n" + error);
             });
             request.end();
-
-};
+}
 
 function userInfoRequest(userId) {
     return new Promise((resolve, reject) => {
