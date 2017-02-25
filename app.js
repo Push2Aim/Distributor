@@ -693,12 +693,10 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         image_url: message.imageUrl,
                         buttons: message.buttons.map((btn) => {
                                 switch (btn.postback) {
+                                    case "element_share":
+                                        return ({type: "element_share"});
                                     default:
-                                        return ({
-                                        type: "postback",
-                                        title: btn.text,
-                                        payload: btn.postback
-                                        });
+                                        return ({type: "postback", title: btn.text, payload: btn.postback});
                                 }
                             }
                         )
