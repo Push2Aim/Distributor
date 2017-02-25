@@ -692,12 +692,13 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         item_url: message.imageUrl,
                         image_url: message.imageUrl,
                         buttons: message.buttons.map((btn) => {
-                                switch (btn.postback) {
-                                    case "element_share":
-                                        return ({type: "element_share"});
-                                    default:
-                                        return ({type: "postback", title: btn.text, payload: btn.postback});
-                                }
+                            if (btn.postback.charAt(0) === '+') {
+                                return ({type: "phone_number", title: btn.text, payload: btn.postback});
+                            } else if (btn.postback === "element_share") {
+                                return ({type: "element_share"});
+                            } else {
+                                return ({type: "postback", title: btn.text, payload: btn.postback});
+                            }
                             }
                         )
                     }]
