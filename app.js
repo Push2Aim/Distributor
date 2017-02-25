@@ -693,7 +693,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         image_url: message.imageUrl,
                         buttons: message.buttons.map((btn) =>
                             ({
-                                type: "web_url",
+                                type: "postback",
                                 url: btn.postback,
                                 title: btn.text
                             })
