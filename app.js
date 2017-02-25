@@ -890,7 +890,6 @@ function callSendAPI(messageData, callback, timeOut) {
         qs: {access_token: PAGE_ACCESS_TOKEN},
         method: 'POST',
         json: messageData
-
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var recipientId = body.recipient_id;
@@ -909,7 +908,8 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            callback(new Error("Failed calling Send API " + response.statusCode + "\n" + response.statusMessage + "\n" + JSON.stringify(body.error)));
+            callback(new Error("Failed calling Send API " + response.statusCode + "\n" + response.statusMessage
+                + "\n" + JSON.stringify(messageData)+ "\n" + JSON.stringify(body.error)));
         }
     });
 }
