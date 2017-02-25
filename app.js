@@ -691,13 +691,13 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         subtitle: message.subtitle,
                         item_url: message.imageUrl,
                         image_url: message.imageUrl,
-                        buttons: message.buttons.map(function (btn) {
-                            return ({
+                        buttons: message.buttons.map((btn) =>
+                            ({
                                 type: "web_url",
                                 url: btn.postback,
                                 title: btn.text
-                            });
-                        })
+                            })
+                        )
                     }]
                 }
             }
