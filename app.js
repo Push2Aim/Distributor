@@ -694,8 +694,8 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         buttons: message.buttons.map((btn) =>
                             ({
                                 type: "postback",
-                                url: btn.postback,
-                                title: btn.text
+                                title: btn.text,
+                                payload: btn.postback
                             })
                         )
                     }]
