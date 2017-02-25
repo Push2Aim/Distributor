@@ -691,12 +691,16 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         subtitle: message.subtitle,
                         item_url: message.imageUrl,
                         image_url: message.imageUrl,
-                        buttons: message.buttons.map((btn) =>
-                            ({
-                                type: "postback",
-                                title: btn.text,
-                                payload: btn.postback
-                            })
+                        buttons: message.buttons.map((btn) => {
+                                switch (btn.postback) {
+                                    default:
+                                        return ({
+                                        type: "postback",
+                                        title: btn.text,
+                                        payload: btn.postback
+                                        });
+                                }
+                            }
                         )
                     }]
                 }
