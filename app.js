@@ -617,7 +617,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                     elements: [{
                         title: message.title,
                         subtitle: message.subtitle,
-                        item_url: "https://www.push2aim.com",
+                        item_url: "https://push2aim.com",
                         image_url: message.imageUrl,
                         buttons: message.buttons.map(function (btn) {
                             return ({
