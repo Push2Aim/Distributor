@@ -23,7 +23,7 @@ const
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
-app.use(bodyParser.json());
+app.use(bodyParser.json({verify: verifyRequestSignature}));
 app.use(express.static('public'));
 
 var dotenv = require('dotenv');
@@ -47,6 +47,11 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
     console.error("Missing config values");
     process.exit(1);
 }
+
+app.get('/chatfuel',function (req, res) {
+    console.log("/chatfuel", req);
+});
+
 /*
  * Use your own validation token. Check that the token used in the Webhook 
  * setup is the same token used here.
@@ -73,7 +78,6 @@ app.get('/webhook', function (req, res) {
  */
 app.post('/webhook', function (req, res) {
     var data = req.body;
-    console.log("post to /webhook Body: ",data);
 
     // Make sure this is a page subscription
     if (data.object == 'page') {
