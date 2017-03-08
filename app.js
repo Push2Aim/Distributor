@@ -49,7 +49,8 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 }
 
 app.get('/chatfuel',function (req, res) {
-    console.log("/chatfuel", req);
+    let data = req.query;
+    console.log("/chatfuel", data);
 });
 
 /*
