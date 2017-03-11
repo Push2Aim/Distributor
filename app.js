@@ -25,9 +25,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json({verify: verifyRequestSignature}));
 app.use(express.static('public'));
 
-var dotenv = require('dotenv');
+
 // Load environment variables from .env file
-dotenv.load();
+if (process.env.NODE_ENV != "production")
+    loadEnvironmentVariables();
+function loadEnvironmentVariables() {
+    let dotenv = require('dotenv');
+    dotenv.load();
+}
 
 // App Secret can be retrieved from the App Dashboard
 const APP_SECRET = (process.env.MESSENGER_APP_SECRET);
