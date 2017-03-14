@@ -34,6 +34,8 @@ function loadEnvironmentVariables() {
     dotenv.load();
 }
 
+var dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).facebook;
+
 // App Secret can be retrieved from the App Dashboard
 const APP_SECRET = (process.env.MESSENGER_APP_SECRET);
 
@@ -82,6 +84,8 @@ app.get('/webhook', function (req, res) {
  *
  */
 app.post('/webhook', function (req, res) {
+    dashbot.logIncoming(req.body);
+
     var data = req.body;
 
     // Make sure this is a page subscription
@@ -825,13 +829,16 @@ let takeABreak = function (senderID, callback, timeOut) {
     setTimeout(callback, timeOut);
 };
 function callSendAPI(messageData, callback, timeOut) {
-    request({
+    let requestData = {
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: PAGE_ACCESS_TOKEN},
         method: 'POST',
         json: messageData
+    };
 
-    }, function (error, response, body) {
+    request(requestData, function (error, response, body) {
+        dashbot.logOutgoing(requestData, response.body);
+
         if (!error && response.statusCode == 200) {
             var recipientId = body.recipient_id;
             var messageId = body.message_id;
