@@ -850,7 +850,7 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error, messageData);
             // callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
         }
     });
