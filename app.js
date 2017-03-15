@@ -274,13 +274,29 @@ function sendEventRequest(senderID, eventName) {
 
 // exports.sendTextRequest = sendTextRequest;
 function sendTextRequest(senderID, message) {
-    var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-        .textRequest(message, {
-            sessionId: senderID
-        });
+    userInfoRequest(senderID)
+        .then((userInfo) => {
+            var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+                .textRequest(message, {
+                    sessionId: senderID,
+                    contexts: [
+                        {
+                            name: "userInfo",
+                            parameters: {
+                                facebook_user_name: userInfo.first_name,
+                                facebook_last_name: userInfo.last_name,
+                                facebook_locale: userInfo.locale,
+                                facebook_timezone: userInfo.timezone,
+                                facebook_gendere: userInfo.gender,
+                            }
+                        }
+                    ]
+                });
 
-    sendApiAiRequest(request, senderID);
+            sendApiAiRequest(request, senderID);
+        }).catch(err => console.error(err));
 }
+
 
 function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
