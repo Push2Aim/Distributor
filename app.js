@@ -336,9 +336,8 @@ function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
     request.on('response', function (response) {
-        console.log(response);
-        let messages = response.result.fulfillment.data
-        && response.result.fulfillment.data.distributor ?
+        console.log("ApiAi Response: ", JSON.stringify(response));
+        let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
         sendMessages(senderID, messages);
@@ -347,7 +346,7 @@ function sendApiAiRequest (request, senderID) {
 
     request.on('error', function (error) {
         console.log(error);
-        sendTextMessage(senderID, "An Error accrued: \n" + error);
+        sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
 };
@@ -903,7 +902,7 @@ function callSendAPI(messageData, callback, timeOut) {
             }
         } else {
             console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error, "messageData: "+ JSON.stringify(messageData));
-            // callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
+            callback(new Error("Failed calling Send API" + " " + response.statusCode + " " + response.statusMessage));
         }
     });
 }
