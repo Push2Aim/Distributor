@@ -49,6 +49,23 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
     process.exit(1);
 }
 
+wakeUp(process.env.ADDRESSES.split(","));
+function wakeUp(addresses) {
+    addresses.map((uri) => {
+        request({
+                method: 'GET',
+                uri: uri
+            },
+            function (error, response) {
+                if (error) {
+                    console.error('Error while userInfoRequest: ', error);
+                } else {
+                    console.log(uri+' result: ', response.body);
+                }
+            });
+    });
+}
+
 app.get('/chatfuel',function (req, res) {
     let data = req.query;
     console.log("/chatfuel", data);
@@ -293,7 +310,7 @@ function sendTextRequest(senderID, message) {
                     ]
                 });
 
-            sendApiAiRequest(request, senderID);
+            sendApiAiRequest(request, senderID);x
         }).catch(err => console.error(err));
 }
 function userInfoRequest(userId) {
@@ -445,6 +462,7 @@ function receivedMessageRead(event) {
 
     console.log("Received message read event for watermark %d and sequence " +
         "number %d", watermark, sequenceNumber);
+
 }
 
 /*
@@ -883,7 +901,7 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error, messageData);
+            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error, "messageData: "+ JSON.stringify(messageData));
             // callback("Failed calling Send API; statusCode: " + response.statusCode+"; statusMessage: "+ response.statusMessage+"; boddy.error: "+ body.error);
         }
     });
