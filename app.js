@@ -310,7 +310,7 @@ function sendTextRequest(senderID, message) {
                     ]
                 });
 
-            sendApiAiRequest(request, senderID);x
+            sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
 function userInfoRequest(userId) {
