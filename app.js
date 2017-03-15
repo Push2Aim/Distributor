@@ -296,6 +296,23 @@ function sendTextRequest(senderID, message) {
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
+function userInfoRequest(userId) {
+    return new Promise((resolve, reject) => {
+        request({
+                method: 'GET',
+                uri: "https://graph.facebook.com/v2.6/" + userId + "?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=" + PAGE_ACCESS_TOKEN
+            },
+            function (error, response) {
+                if (error) {
+                    console.error('Error while userInfoRequest: ', error);
+                    reject(error);
+                } else {
+                    console.log('userInfoRequest result: ', response.body);
+                    resolve(JSON.parse(response.body));
+                }
+            });
+    });
+}
 
 
 function sendApiAiRequest (request, senderID) {
