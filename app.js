@@ -463,6 +463,7 @@ function receivedMessageRead(event) {
     console.log("Received message read event for watermark %d and sequence " +
         "number %d", watermark, sequenceNumber);
 
+    wakeUp(process.env.ADDRESSES.split(","));
 }
 
 /*
