@@ -345,7 +345,7 @@ function sendApiAiRequest (request, senderID) {
     });
 
     request.on('error', function (error) {
-        console.log(error);
+        console.error(error);
         sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
@@ -389,7 +389,10 @@ function sendMessages(senderID, messages) {
                 break;
         }
     }, error => {
-        if (error) console.error(error);
+        if (error) {
+            console.error(error);
+            sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+        }
     });
 }
 /*
