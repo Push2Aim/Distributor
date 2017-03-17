@@ -290,13 +290,7 @@ function sendEventRequest(senderID, eventName) {
                     contexts: [
                         {
                             name: "userInfo",
-                            parameters: {
-                                facebook_user_name: userInfo.first_name,
-                                facebook_last_name: userInfo.last_name,
-                                facebook_locale: userInfo.locale,
-                                facebook_timezone: userInfo.timezone,
-                                facebook_gendere: userInfo.gender,
-                            }
+                            parameters: userInfo
                         }
                     ]
                 });
@@ -314,13 +308,7 @@ function sendTextRequest(senderID, message) {
                     contexts: [
                         {
                             name: "userInfo",
-                            parameters: {
-                                facebook_user_name: userInfo.first_name,
-                                facebook_last_name: userInfo.last_name,
-                                facebook_locale: userInfo.locale,
-                                facebook_timezone: userInfo.timezone,
-                                facebook_gendere: userInfo.gender,
-                            }
+                            parameters: userInfo
                         }
                     ]
                 });
@@ -339,7 +327,14 @@ function userInfoRequest(userId) {
                     reject(error);
                 } else {
                     console.log('userInfoRequest result: ', response.body);
-                    resolve(JSON.parse(response.body));
+                    let userInfo = JSON.parse(response.body);
+                    resolve({
+                        facebook_user_name: userInfo.first_name,
+                        facebook_last_name: userInfo.last_name,
+                        facebook_locale: userInfo.locale,
+                        facebook_timezone: userInfo.timezone,
+                        facebook_gendere: userInfo.gender,
+                    });
                 }
             });
     });
