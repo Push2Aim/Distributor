@@ -692,12 +692,31 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         subtitle: message.subtitle,
                         item_url: "https://push2aim.com",
                         image_url: message.imageUrl,
-                        buttons: message.buttons.map(function (btn) {
-                            return ({
-                                type: "web_url",
-                                url: btn.postback,
-                                title: btn.text
-                            });
+                        buttons: message.buttons.map(btn => {
+                            if (btn.postback.startsWith("+")) {
+                                return ({
+                                    type: "phone_number",
+                                    title: btn.text,
+                                    payload: btn.postback
+                                });
+                            } else if (btn.postback.startsWith("https://") || btn.postback.startsWith("http://")) {
+                                return ({
+                                    type: "web_url",
+                                    title: btn.text,
+                                    url: btn.postback,
+                                    webview_height_ratio: "compact"
+                                });
+                            } else if (btn.postback === "element_share") {
+                                return ({
+                                    type: "element_share"
+                                });
+                            } else {
+                                return ({
+                                    type: "postback",
+                                    title: btn.text,
+                                    payload: btn.postback
+                                });
+                            }
                         })
                     }]
                 }
