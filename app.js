@@ -628,6 +628,7 @@ function sendFileMessage(recipientId) {
  *
  */
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
+    messageText = messageText.split(" action: ",1);
     var messageData = {
         recipient: {
             id: recipientId
