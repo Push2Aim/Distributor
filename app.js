@@ -692,6 +692,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                 type: "template",
                 payload: {
                     template_type: "generic",
+                    image_aspect_ratio: "square",
                     elements: [{
                         title: message.title,
                         subtitle: message.subtitle,
