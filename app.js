@@ -398,7 +398,7 @@ function sendMessages(senderID, messages) {
                 sendImageMessage(senderID, message.imageUrl, callback, timeOut);
                 break;
             case 4:
-                sendCustomPayload(senderID, message.facebook, callback, timeOut);
+                sendCustomPayload(senderID, message.payload.facebook, callback, timeOut);
                 break;
         }
     }, error => {
