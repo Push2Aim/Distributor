@@ -9,7 +9,7 @@ exports.up = function (knex, Promise) {
         table.integer("days_being_on_fitness_journey");
         table.boolean("subscribed");
         table.string("goal");
-        table.timestamps();
+        table.timestamps().notNullable();
     });
 };
 
