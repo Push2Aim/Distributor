@@ -290,33 +290,34 @@ function sendEventRequest(senderID, eventName) {
     userInfoRequest(senderID)
         .then((userInfo) => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-                .eventRequest(event, {
-                    sessionId: senderID,
-                    contexts: [
-                        {
-                            name: "userInfo",
-                            parameters: userInfo
-                        }
-                    ]
-                });
+                .eventRequest(event,
+                    buildApiAiRequestOptions(senderID, userInfo));
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
-
 // exports.sendTextRequest = sendTextRequest;
+let buildApiAiRequestOptions = function (senderID, userInfo) {
+    let options = {
+        sessionId: senderID,
+        contexts: [
+            {
+                name: "userInfo",
+                parameters: userInfo
+            },
+            {
+                name: "userProfile",
+                parameters: db.getProfile(senderID)
+            },
+        ]
+    };
+    return options;
+};
 function sendTextRequest(senderID, message) {
     userInfoRequest(senderID)
         .then((userInfo) => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-                .textRequest(message, {
-                    sessionId: senderID,
-                    contexts: [
-                        {
-                            name: "userInfo",
-                            parameters: userInfo
-                        }
-                    ]
-                });
+                .textRequest(message,
+                    buildApiAiRequestOptions(senderID, userInfo));
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }

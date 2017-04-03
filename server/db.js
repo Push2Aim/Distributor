@@ -3,10 +3,20 @@ const Profile = require("./models/profile");
 
 module.exports = {
     updateProfile: updateProfile,
-    addProfile: addProfile
+    addProfile: addProfile,
+    getProfile: getProfile
 };
+function getProfile(sessionId) {
+    return Profile.where({fb_id: sessionId}).fetch()
+        .then(profile => {
+            profile = parsProfile(profile.attributes)
+            console.log("got Profile", profile);
+            return profile
+        })
+        .catch(err => console.error("getProfile", err));
+}
 function addProfile(sessionId, context) {
-    let info = buildUpdate(context);
+    let info = parsProfile(context);
     info.fb_id = sessionId;
     return Profile.forge(info, {hasTimestamps: true}).save()
         .then(profile => console.log("added Profile", profile))
@@ -16,16 +26,21 @@ function updateProfile(sessionId, context) {
     if (Object.keys(context).length <= 0) return console.log("no Info to Update", context);
     else console.log("update with ", context);
 
+    let buildUpdate = () => {
+        let update = parsProfile(context);
+        update.updated_at = new Date();
+        return update;
+    };
+
     return Profile.where({fb_id: sessionId}).fetch()
         .then(profile => profile === null ?
             addProfile(sessionId, context) :
-            profile.save(buildUpdate(context)))
+            profile.save(buildUpdate()))
         .then(profile => console.log("updated Profile", profile))
         .catch(err => console.error("updateProfile", err));
 }
-function buildUpdate(context) {
+function parsProfile(context) {
     return {
-        "updated_at": new Date(),
         "number_of_workouts": context.number_of_workouts,
         "workout_level": context.workout_level,
         "ep": context.ep,
