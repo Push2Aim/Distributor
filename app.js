@@ -287,37 +287,36 @@ function sendEventRequest(senderID, eventName) {
         data: {}
     };
 
-    userInfoRequest(senderID)
-        .then((userInfo) => {
+    buildApiAiRequestOptions(senderID)
+        .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-                .eventRequest(event,
-                    buildApiAiRequestOptions(senderID, userInfo));
+                .eventRequest(event,options);
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
 // exports.sendTextRequest = sendTextRequest;
-let buildApiAiRequestOptions = function (senderID, userInfo) {
-    let options = {
-        sessionId: senderID,
-        contexts: [
-            {
-                name: "userInfo",
-                parameters: userInfo
-            },
-            {
-                name: "userProfile",
-                parameters: db.getProfile(senderID)
-            },
-        ]
-    };
-    return options;
+function buildApiAiRequestOptions (senderID) {
+    return userInfoRequest(senderID)
+        .then((userInfo) => db.getProfile(senderID)
+            .then(userProfile => ({
+                sessionId: senderID,
+                contexts: [
+                    {
+                        name: "userInfo",
+                        parameters: userInfo
+                    },
+                    {
+                        name: "userProfile",
+                        parameters: userProfile
+                    },
+                ]
+            }))).catch(err => console.error(err));
 };
 function sendTextRequest(senderID, message) {
-    userInfoRequest(senderID)
-        .then((userInfo) => {
+    buildApiAiRequestOptions(senderID)
+        .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-                .textRequest(message,
-                    buildApiAiRequestOptions(senderID, userInfo));
+                .textRequest(message, options);
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
