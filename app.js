@@ -356,7 +356,8 @@ function sendApiAiRequest (request, senderID) {
 
     request.on('response', function (response) {
         console.log("ApiAi Response: ", JSON.stringify(response));
-        updateProfile(response);
+        if (response.result.action === "updateProfile")
+            updateProfile(response);
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
