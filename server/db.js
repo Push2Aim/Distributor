@@ -6,12 +6,17 @@ module.exports = {
     addProfile: addProfile,
     getProfile: getProfile
 };
+let addValues = function (from, to, keys) {
+    keys.forEach(key => to[key] = from[key]);
+    return to;
+};
 function getProfile(sessionId) {
     return Profile.where({fb_id: sessionId}).fetch()
         .then(profile => {
-            profile = parsProfile(profile.attributes)
-            console.log("got Profile", profile);
-            return profile
+            let userProfile = parsProfile(profile.attributes)
+            userProfile = addValues(profile.attributes, userProfile,["created_at","updated_at"]);
+            console.log("got Profile", userProfile);
+            return userProfile
         })
         .catch(err => console.error("getProfile", err));
 }
