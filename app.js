@@ -18,6 +18,7 @@ const
     request = require('request'),
     apiAI = require('apiai'),
     async = require('async');
+const db = require("./server/db.js");
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -348,8 +349,14 @@ function userInfoRequest(userId) {
 function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
+    let extractProfile = contexts => contexts
+        .find(context => context.name === "profile").parameters;
+    let updateProfile = response =>
+        db.updateProfile(response.sessionId, extractProfile(response.result.contexts));
+
     request.on('response', function (response) {
         console.log("ApiAi Response: ", JSON.stringify(response));
+        updateProfile(response);
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
