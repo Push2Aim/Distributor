@@ -8,8 +8,8 @@ exports.up = function (knex, Promise) {
         table.string("main_strength");
         table.integer("days_being_on_fitness_journey");
         table.boolean("subscribed");
-        table.string("goal");
-        table.timestamps().notNullable();
+        table.string("user_goal");
+        table.timestamps();
     });
 };
 
