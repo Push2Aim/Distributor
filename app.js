@@ -27,7 +27,7 @@ app.use(bodyParser.json({verify: verifyRequestSignature}));
 app.use(express.static('public'));
 
 // Load environment variables from .env file
-if (process.env.NODE_ENV != "production")
+if (process.env.NODE_ENV !== "production")
     loadEnvironmentVariables();
 function loadEnvironmentVariables() {
     let dotenv = require('dotenv');
@@ -350,7 +350,7 @@ function sendApiAiRequest (request, senderID) {
     sendTypingOn(senderID);
 
     let extractProfile = contexts => contexts
-        .find(context => context.name === "profile").parameters;
+        .find(context => context.name === "userprofile").parameters;
     let updateProfile = response =>
         db.updateProfile(response.sessionId, extractProfile(response.result.contexts));
 
