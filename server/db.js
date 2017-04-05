@@ -66,7 +66,7 @@ function getValidationError(context) {
     console.log("no ValidationError", context)
 }
 function getAllIDs(selectors) {
-    return Profile.where(selectors).fetchAll()
+    return Profile.where(selectors).fetchAll({require: true})
         .then(profiles => profiles.map(profile => profile.get("fb_id")))
         .then(ids => {
             console.log("got fb_ids", ids);
