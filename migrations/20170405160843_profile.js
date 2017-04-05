@@ -1,5 +1,5 @@
 exports.up = function (knex, Promise) {
-    return knex.schema.createTable("profile", function (table) {
+    return knex.schema.createTableIfNotExists("profile", function (table) {
         table.increments().primary();
         table.biginteger("fb_id").notNullable().unique();
         table.integer("number_of_workouts").defaultTo(0);

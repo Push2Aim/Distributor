@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "knex migrate:latest && node ./app.js"
+    "start": "node ./app.js",
+    "migrate": "NODE_ENV=production knex migrate:latest"
   },
   "engines": {
     "node": "7.6.0"
