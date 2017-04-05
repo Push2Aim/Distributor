@@ -34,7 +34,7 @@ function addProfile(sessionId, context) {
         .catch(err => console.error("addProfile", err))
 }
 function updateProfile(sessionId, context) {
-    if (!getValidationError(context))
+    if (getValidationError(context))
         return Promise.reject(getValidationError(context));
 
     let buildUpdate = () => {
