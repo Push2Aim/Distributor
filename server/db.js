@@ -20,7 +20,7 @@ function getProfile(sessionId) {
     return Profile.where({fb_id: sessionId}).fetch()
         .then(profile => {
             return profile === null ?
-                addProfile(sessionId, {}).then(parseUserProfile(profile)) :
+                addProfile(sessionId, {}).then(getProfile(sessionId)) :
                 parseUserProfile(profile);
         })
         .catch(err => console.error("getProfile", err));
