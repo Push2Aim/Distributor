@@ -346,18 +346,27 @@ function userInfoRequest(userId) {
 }
 
 
-function sendApiAiRequest (request, senderID) {
-    sendTypingOn(senderID);
-
+function takeAction(response) {
     let extractProfile = contexts => contexts
         .find(context => context.name === "userprofile").parameters;
     let updateProfile = response =>
         db.updateProfile(response.sessionId, extractProfile(response.result.contexts));
+    let addProfile = response =>
+        db.addProfile(response.sessionId, extractProfile(response.result.contexts));
+
+    switch (response.result.action) {
+        case "updateProfile":
+            return updateProfile(response);
+        case "addProfile":
+            return addProfile(response);
+    }
+}
+function sendApiAiRequest (request, senderID) {
+    sendTypingOn(senderID);
 
     request.on('response', function (response) {
         console.log("ApiAi Response: ", JSON.stringify(response));
-        if (response.result.action === "updateProfile")
-            updateProfile(response);
+        takeAction(response.result.action);
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
@@ -958,7 +967,6 @@ function callSendAPI(messageData, callback, timeOut) {
 app.listen(app.get('port'), function () {
     console.log('Node app is running on port', app.get('port'));
 });
-
 
 module.exports = app;
 
