@@ -10,6 +10,8 @@ exports.up = function (knex, Promise) {
         table.boolean("subscribed").defaultTo(false);
         table.string("user_goal").defaultTo("else");
         table.timestamps();
+
+        console.log("created Table", table)
     });
 };
 
