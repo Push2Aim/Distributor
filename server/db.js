@@ -4,7 +4,8 @@ const Profile = require("./models/profile");
 module.exports = {
     updateProfile: updateProfile,
     addProfile: addProfile,
-    getProfile: getProfile
+    getProfile: getProfile,
+    getAllIDs: getAllIDs
 };
 let addValues = function (from, to, keys) {
     keys.forEach(key => to[key] = from[key]);
@@ -63,4 +64,13 @@ function parsProfile(context) {
 function getValidationError(context) {
     if (Object.keys(context).length <= 0) return new Error("no Properties in context" + JSON.stringify(context));
     console.log("no ValidationError", context)
+}
+function getAllIDs(selectors) {
+    return Profile.where(selectors).fetchAll()
+        .then(profiles => profiles.map(profile => profile.get("fb_id")))
+        .then(ids => {
+            console.log("got fb_ids", ids);
+            return ids;
+        })
+        .catch(err => console.error("getAllIDs", err));
 }

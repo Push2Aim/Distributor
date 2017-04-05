@@ -70,10 +70,13 @@ function wakeUp(addresses) {
             });
     });
 }
-
-app.get('/chatfuel',function (req, res) {
-    let data = req.query;
-    console.log("/chatfuel", data);
+app.post('/subscription', function (req, res) {
+    console.log("/subscripiton", req.body);
+    let messages = req.body.messages;
+    let selectors = req.body.selectors;
+    db.getAllIDs(selectors)
+        .then(ids => ids.forEach(senderID =>
+            sendMessages(senderID, messages)))
 });
 
 /*
