@@ -345,7 +345,6 @@ function userInfoRequest(userId) {
     });
 }
 
-
 function takeAction(response) {
     let extractProfile = contexts => contexts
         .find(context => context.name === "userprofile").parameters;
@@ -354,11 +353,15 @@ function takeAction(response) {
     let addProfile = response =>
         db.addProfile(response.sessionId, extractProfile(response.result.contexts));
 
-    switch (response.result.action) {
-        case "updateProfile":
-            return updateProfile(response);
-        case "addProfile":
-            return addProfile(response);
+    try {
+        switch (response.result.action) {
+            case "updateProfile":
+                return updateProfile(response);
+            case "addProfile":
+                return addProfile(response);
+        }
+    } catch (err) {
+        console.error(err)
     }
 }
 function sendApiAiRequest (request, senderID) {
