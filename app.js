@@ -75,8 +75,13 @@ app.post('/subscription', function (req, res) {
     let messages = req.body.messages;
     let selectors = req.body.selectors;
     db.getAllIDs(selectors)
-        .then(ids => ids.forEach(senderID =>
-            sendMessages(senderID, messages)))
+        .then(ids => {
+            ids.forEach(senderID =>
+                sendMessages(senderID, messages));
+            return ids;
+        })
+        .then(ids => res.json({recipients: ids, success: true}))
+        .catch(err => res.status(500).json({ error: err }));
 });
 
 /*
