@@ -2,7 +2,6 @@
 
 if (process.env.NODE_ENV !== "production")
     loadEnvironmentVariables();
-else console.log("env",process.env);
 function loadEnvironmentVariables() {
     let dotenv = require('dotenv');
     dotenv.load();
