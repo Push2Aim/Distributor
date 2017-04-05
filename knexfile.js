@@ -1,12 +1,5 @@
 // Update with your config settings.
 
-if (process.env.NODE_ENV !== "production")
-    loadEnvironmentVariables();
-function loadEnvironmentVariables() {
-    let dotenv = require('dotenv');
-    dotenv.load();
-}
-
 module.exports = {
 
   development: {
