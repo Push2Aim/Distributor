@@ -11,12 +11,17 @@ let addValues = function (from, to, keys) {
     return to;
 };
 function getProfile(sessionId) {
+    let parseUserProfile = function (profile) {
+        let userProfile = parsProfile(profile.attributes)
+        userProfile = addValues(profile.attributes, userProfile, ["created_at", "updated_at"]);
+        console.log("got Profile", userProfile);
+        return userProfile
+    };
     return Profile.where({fb_id: sessionId}).fetch()
         .then(profile => {
-            let userProfile = parsProfile(profile.attributes)
-            userProfile = addValues(profile.attributes, userProfile,["created_at","updated_at"]);
-            console.log("got Profile", userProfile);
-            return userProfile
+            return profile === null ?
+                addProfile(sessionId, context).then(parseUserProfile(profile)) :
+                parseUserProfile(profile);
         })
         .catch(err => console.error("getProfile", err));
 }
