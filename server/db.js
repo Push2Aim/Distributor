@@ -52,7 +52,7 @@ function parsProfile(context) {
         "main_strength": context.main_strength,
         "days_being_on_fitness_journey": context.days_being_on_fitness_journey,
         "subscribed": context.subscribed,
-        "user_goal": context.goal,
+        "user_goal": context.user_goal,
     }
 
 }
