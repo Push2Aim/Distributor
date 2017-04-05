@@ -21,6 +21,8 @@ function getProfile(sessionId) {
         .catch(err => console.error("getProfile", err));
 }
 function addProfile(sessionId, context) {
+    if(!sessionId) return Promise.reject(new Error("no sessionID"));
+
     let info = parsProfile(context);
     info.fb_id = sessionId;
     return Profile.forge(info, {hasTimestamps: true}).save()
@@ -28,8 +30,8 @@ function addProfile(sessionId, context) {
         .catch(err => console.error("addProfile", err))
 }
 function updateProfile(sessionId, context) {
-    if (Object.keys(context).length <= 0) return console.log("no Info to Update", context);
-    else console.log("update with ", context);
+    if (!getValidationError(context))
+        return Promise.reject(getValidationError(context));
 
     let buildUpdate = () => {
         let update = parsProfile(context);
@@ -54,5 +56,8 @@ function parsProfile(context) {
         "subscribed": context.subscribed,
         "user_goal": context.user_goal,
     }
-
+}
+function getValidationError(context) {
+    if (Object.keys(context).length <= 0) return new Error("no Properties in context" + JSON.stringify(context));
+    console.log("no ValidationError", context)
 }
