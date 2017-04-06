@@ -1,6 +1,7 @@
 const User = require("./models/user");
 const Profile = require("./models/profile");
 
+
 module.exports = {
     updateProfile: updateProfile,
     addProfile: addProfile,
@@ -66,11 +67,15 @@ function getValidationError(context) {
     console.log("no ValidationError", context)
 }
 function getAllIDs(selectors) {
-    return Profile.where(selectors).fetchAll({require: true})
+    let out = selectors.map((selector) =>
+        Profile.where(selector).fetchAll()
         .then(profiles => profiles.map(profile => profile.get("fb_id")))
-        .then(ids => {
-            console.log("got fb_ids", ids);
-            return ids;
-        })
-        .catch(err => console.error("getAllIDs", err));
+    );
+
+    return Promise.all(out).then(ids => {
+        return ids.reduce((acc, cur) => {
+            cur.forEach(id => acc.includes(id) ? acc : acc.push(id))
+            return acc
+        });
+    }).catch(err => console.error("getAllIDs", err));
 }

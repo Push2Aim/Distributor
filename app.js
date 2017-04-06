@@ -76,6 +76,7 @@ app.post('/subscription', function (req, res) {
     let selectors = req.body.selectors;
     db.getAllIDs(selectors)
         .then(ids => {
+            console.log("recipient fb_ids", ids);
             ids.forEach(senderID =>
                 sendMessages(senderID, messages));
             return ids;
