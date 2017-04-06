@@ -66,10 +66,19 @@ function getValidationError(context) {
     if (Object.keys(context).length <= 0) return new Error("no Properties in context" + JSON.stringify(context));
     console.log("no ValidationError", context)
 }
+function whereWithArray(table, selector) {
+    selector.forEach((cur) => cur.length === 2 ?
+        table = table.where(cur[0], cur[1]) :
+        table = table.where(cur[0], cur[1], cur[2])
+    );
+    return table;
+}
 function getAllIDs(selectors) {
     let out = selectors.map((selector) =>
-        Profile.where(selector).fetchAll()
-        .then(profiles => profiles.map(profile => profile.get("fb_id")))
+        (Array.isArray(selector) ?
+            whereWithArray(Profile, selector) : Profile.where(selector))
+            .fetchAll()
+            .then(profiles => profiles.map(profile => profile.get("fb_id")))
     );
 
     return Promise.all(out).then(ids => {
