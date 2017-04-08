@@ -72,6 +72,11 @@ function wakeUp(addresses) {
 }
 app.post('/subscription', function (req, res) {
     console.log("/subscripiton", req.body);
+    if (req.body.token !== VALIDATION_TOKEN){
+        res.status(400).json({error: "wrong Token"});
+        console.log("wrong Token:", req.body.token)
+    }
+
     let messages = req.body.messages;
     let selectors = req.body.selectors;
     db.getAllIDs(selectors)
