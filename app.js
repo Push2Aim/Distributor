@@ -92,10 +92,10 @@ app.post('/subscription', function (req, res) {
 
 let pausedUsers = {};
 app.post('/pause', function (req, res) {
-    console.log(req);
     const userId = req.body.userId;
     const paused = req.body.paused;
     pausedUsers[userId] = paused;
+    console.log(userId, paused, pausedUsers);
     res.send("ok");
 })
 
