@@ -90,6 +90,15 @@ app.post('/subscription', function (req, res) {
         .catch(err => res.status(500).json({ error: err }));
 });
 
+let pausedUsers = {};
+app.post('/pause', function (req, res) {
+    console.log(req);
+    const userId = req.body.userId;
+    const paused = req.body.paused;
+    pausedUsers[userId] = paused;
+    res.send("ok");
+})
+
 /*
  * Use your own validation token. Check that the token used in the Webhook 
  * setup is the same token used here.
@@ -258,6 +267,7 @@ function receivedMessage(event) {
     var recipientID = event.recipient.id;
     var timeOfMessage = event.timestamp;
     var message = event.message;
+    if(pausedUsers[recipientID]) return console.log("paused", recipientID, message);
 
     console.log("Received message for user %d and page %d at %d with message:",
         senderID, recipientID, timeOfMessage);
