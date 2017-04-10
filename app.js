@@ -268,6 +268,7 @@ function receivedMessage(event) {
     var timeOfMessage = event.timestamp;
     var message = event.message;
 
+    console.log(pausedUsers, recipientID, pausedUsers[recipientID]);
     if (!pausedUsers[recipientID]) {
 
         console.log("Received message for user %d and page %d at %d with message:",
