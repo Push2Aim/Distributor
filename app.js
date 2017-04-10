@@ -268,8 +268,9 @@ function receivedMessage(event) {
     var timeOfMessage = event.timestamp;
     var message = event.message;
 
-    console.log(pausedUsers, recipientID, pausedUsers[recipientID]);
-    if (!pausedUsers[recipientID]) {
+    if (pausedUsers[senderID]) {
+        console.log("paused", senderID, message);
+    } else {
 
         console.log("Received message for user %d and page %d at %d with message:",
             senderID, recipientID, timeOfMessage);
@@ -303,8 +304,6 @@ function receivedMessage(event) {
             sendEventRequest(senderID, "RANDOM_STUFF");
         }
 
-    } else {
-        console.log("paused", recipientID, message);
     }
 }
 // exports.sendEventRequest = sendEventRequest;
