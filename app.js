@@ -267,44 +267,47 @@ function receivedMessage(event) {
     var recipientID = event.recipient.id;
     var timeOfMessage = event.timestamp;
     var message = event.message;
-    if(pausedUsers[recipientID]) {
+
+    if (!pausedUsers[recipientID]) {
+
+        console.log("Received message for user %d and page %d at %d with message:",
+            senderID, recipientID, timeOfMessage);
+        console.log(JSON.stringify(message));
+
+        var isEcho = message.is_echo;
+        var messageId = message.mid;
+        var appId = message.app_id;
+        var metadata = message.metadata;
+
+        // You may get a text or attachment but not both
+        var messageText = message.text;
+        var messageAttachments = message.attachments;
+        var quickReply = message.quick_reply;
+
+        if (isEcho) {
+            // Just logging message echoes to console
+            console.log("Received echo for message %s and app %d with metadata %s",
+                messageId, appId, metadata);
+            return;
+        } else if (quickReply) {
+            var quickReplyPayload = quickReply.payload;
+            console.log("Quick reply for message %s with payload %s",
+                messageId, quickReplyPayload);
+
+            sendTextRequest(senderID, messageText);
+            return;
+        }
+
+        if (messageText) {
+            sendTextRequest(senderID, messageText);
+        } else if (messageAttachments) {
+            //ThumbsUpSticker: {"mid":"mid.1483466706080:70a65f8088","seq":48327,"sticker_id":369239263222822,"attachments":[{"type":"image","payload":{"url":"https://scontent.xx.fbcdn.net/t39.1997-6/851557_369239266556155_759568595_n.png?_nc_ad=z-m","sticker_id":369239263222822}}]}
+            sendEventRequest(senderID, "RANDOM_STUFF");
+        }
+
+    } else {
         console.log("paused", recipientID, message);
         return;
-    }
-
-    console.log("Received message for user %d and page %d at %d with message:",
-        senderID, recipientID, timeOfMessage);
-    console.log(JSON.stringify(message));
-
-    var isEcho = message.is_echo;
-    var messageId = message.mid;
-    var appId = message.app_id;
-    var metadata = message.metadata;
-
-    // You may get a text or attachment but not both
-    var messageText = message.text;
-    var messageAttachments = message.attachments;
-    var quickReply = message.quick_reply;
-
-    if (isEcho) {
-        // Just logging message echoes to console
-        console.log("Received echo for message %s and app %d with metadata %s",
-            messageId, appId, metadata);
-        return;
-    } else if (quickReply) {
-        var quickReplyPayload = quickReply.payload;
-        console.log("Quick reply for message %s with payload %s",
-            messageId, quickReplyPayload);
-
-        sendTextRequest(senderID, messageText);
-        return;
-    }
-
-    if (messageText) {
-        sendTextRequest(senderID, messageText);
-    } else if (messageAttachments) {
-        //ThumbsUpSticker: {"mid":"mid.1483466706080:70a65f8088","seq":48327,"sticker_id":369239263222822,"attachments":[{"type":"image","payload":{"url":"https://scontent.xx.fbcdn.net/t39.1997-6/851557_369239266556155_759568595_n.png?_nc_ad=z-m","sticker_id":369239263222822}}]}
-        sendEventRequest(senderID, "RANDOM_STUFF");
     }
 }
 // exports.sendEventRequest = sendEventRequest;
