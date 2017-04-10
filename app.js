@@ -97,7 +97,7 @@ app.post('/pause', function (req, res) {
     pausedUsers[userId] = paused;
     console.log(userId, paused, pausedUsers);
     res.send("ok");
-})
+});
 
 /*
  * Use your own validation token. Check that the token used in the Webhook 
@@ -288,17 +288,14 @@ function receivedMessage(event) {
             // Just logging message echoes to console
             console.log("Received echo for message %s and app %d with metadata %s",
                 messageId, appId, metadata);
-            return;
         } else if (quickReply) {
             var quickReplyPayload = quickReply.payload;
             console.log("Quick reply for message %s with payload %s",
                 messageId, quickReplyPayload);
 
             sendTextRequest(senderID, messageText);
-            return;
         }
-
-        if (messageText) {
+        else if (messageText) {
             sendTextRequest(senderID, messageText);
         } else if (messageAttachments) {
             //ThumbsUpSticker: {"mid":"mid.1483466706080:70a65f8088","seq":48327,"sticker_id":369239263222822,"attachments":[{"type":"image","payload":{"url":"https://scontent.xx.fbcdn.net/t39.1997-6/851557_369239266556155_759568595_n.png?_nc_ad=z-m","sticker_id":369239263222822}}]}
@@ -307,7 +304,6 @@ function receivedMessage(event) {
 
     } else {
         console.log("paused", recipientID, message);
-        return;
     }
 }
 // exports.sendEventRequest = sendEventRequest;
@@ -341,7 +337,7 @@ function buildApiAiRequestOptions (senderID) {
                     },
                 ]
             }))).catch(err => console.error(err));
-};
+}
 function sendTextRequest(senderID, message) {
     buildApiAiRequestOptions(senderID)
         .then(options => {
@@ -412,8 +408,7 @@ function sendApiAiRequest (request, senderID) {
         sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
-};
-
+}
 function sendSpeech(recipientId, messageText) {
     var messageData = {
         recipient: {
