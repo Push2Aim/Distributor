@@ -733,7 +733,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         title: message.title,
                         subtitle: message.subtitle,
                         item_url: "https://push2aim.com",
-                        image_url: message.imageUrl,
+                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=$duration.amount",
                         buttons: message.buttons.map(btn => {
                             if (btn.postback.startsWith("+")) {
                                 return ({
@@ -746,6 +746,13 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                                     type: "web_url",
                                     title: btn.text,
                                     url: btn.postback,
+                                    webview_height_ratio: "compact"
+                                });
+                            }else if (btn.postback === "") {
+                                return ({
+                                    type: "web_url",
+                                    title: btn.text,
+                                    url: "https://push2aim.github.io/webview/?duration=$duration.amount",
                                     webview_height_ratio: "compact"
                                 });
                             } else if (btn.postback === "element_share") {
