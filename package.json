@@ -23,7 +23,7 @@
     "knex": "^0.12.9",
     "morgan": "~1.7.0",
     "mssql": "<4.0.0",
-    "request": "^2.72.0",
+    "request": "^2.81.0",
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
