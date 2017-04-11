@@ -355,13 +355,8 @@ function userInfoRequest(userId) {
                 } else {
                     console.log('userInfoRequest result: ', response.body);
                     let userInfo = JSON.parse(response.body);
-                    resolve({
-                        facebook_user_name: userInfo.first_name,
-                        facebook_last_name: userInfo.last_name,
-                        facebook_locale: userInfo.locale,
-                        facebook_timezone: userInfo.timezone,
-                        facebook_gendere: userInfo.gender,
-                    });
+                    userInfo.fb_id = userId;
+                    resolve(userInfo);
                 }
             });
     });
