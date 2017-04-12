@@ -390,7 +390,7 @@ function sendApiAiRequest (request, senderID) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-        sendMessages(senderID, messages);
+        sendMessages(senderID, messages, response.result.parameters.duration.amount);
         else sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
@@ -414,7 +414,7 @@ function sendSpeech(recipientId, messageText) {
     callSendAPI(messageData);
 }
 
-function sendMessages(senderID, messages) {
+function sendMessages(senderID, messages, duration) {
     async.eachOfSeries(messages, function (message, index, callback) {
         var timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
@@ -425,7 +425,7 @@ function sendMessages(senderID, messages) {
                 sendTextMessage(senderID, message.speech, callback, timeOut);
                 break;
             case 1:
-                sendGenericMessage(senderID, message, callback, timeOut);
+                sendGenericMessage(senderID, message, callback, timeOut, duration);
                 break;
             case 2:
                 sendQuickReply(senderID, message, callback, timeOut);
@@ -718,7 +718,7 @@ function sendButtonMessage(recipientId) {
  * Send a Structured Message (Generic Message type) using the Send API.
  *
  */
-function sendGenericMessage(recipientId, message, callback, timeOut) {
+function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -733,7 +733,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                         title: message.title,
                         subtitle: message.subtitle,
                         item_url: "https://push2aim.com",
-                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=$duration.amount",
+                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration="+ duration,
                         buttons: message.buttons.map(btn => {
                             if (btn.postback.startsWith("+")) {
                                 return ({
@@ -752,7 +752,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: "https://push2aim.github.io/webview/?duration=$duration.amount",
+                                    url: "https://push2aim.github.io/webview/?duration=" + duration,
                                     webview_height_ratio: "compact"
                                 });
                             } else if (btn.postback === "element_share") {
