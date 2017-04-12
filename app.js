@@ -390,7 +390,7 @@ function sendApiAiRequest (request, senderID) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-        sendMessages(senderID, messages, response.result.parameters.duration.amount);
+            sendMessages(senderID, messages, response.result.parameters.duration);
         else sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
@@ -719,6 +719,7 @@ function sendButtonMessage(recipientId) {
  *
  */
 function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
+    let amount = duration ? duration.amount : 30;
     var messageData = {
         recipient: {
             id: recipientId
@@ -733,7 +734,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                         title: message.title,
                         subtitle: message.subtitle,
                         item_url: "https://push2aim.com",
-                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration="+ duration,
+                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
                         buttons: message.buttons.map(btn => {
                             if (btn.postback.startsWith("+")) {
                                 return ({
@@ -752,7 +753,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: "https://push2aim.github.io/webview/?duration=" + duration,
+                                    url: "https://push2aim.github.io/webview/?duration=" + amount,
                                     webview_height_ratio: "compact"
                                 });
                             } else if (btn.postback === "element_share") {
