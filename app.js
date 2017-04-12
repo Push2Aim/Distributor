@@ -753,7 +753,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                     elements: [{
                         title: message.title,
                         subtitle: message.subtitle,
-                        item_url: "https://push2aim.com",
+                        // item_url: "https://push2aim.com",
                         image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
                         buttons: message.buttons.map(btn => {
                             if (btn.postback.startsWith("+")) {
