@@ -70,24 +70,44 @@ function wakeUp(addresses) {
             });
     });
 }
+let sendMessagesToIDs = function (ids, messages) {
+    console.log("send Messages to IDs", ids, messages);
+    ids.forEach(senderID =>
+        sendMessages(senderID, messages));
+    return ids;
+};
+let isValidatedRequest = function (req, res) {
+    if (req.body.token !== VALIDATION_TOKEN) {
+        res.status(400).json({error: "wrong Token"});
+        console.log("wrong Token:", req.body.token);
+        return false;
+    }
+    return true;
+};
 app.post('/subscription', function (req, res) {
     console.log("/subscripiton", req.body);
-    if (req.body.token !== VALIDATION_TOKEN){
-        res.status(400).json({error: "wrong Token"});
-        console.log("wrong Token:", req.body.token)
-    }
+    if (!isValidatedRequest(req, res)) return;
 
     let messages = req.body.messages;
     let selectors = req.body.selectors;
     db.getAllIDs(selectors)
-        .then(ids => {
-            console.log("recipient fb_ids", ids);
-            ids.forEach(senderID =>
-                sendMessages(senderID, messages));
-            return ids;
-        })
+        .then(ids => sendMessagesToIDs(ids, messages))
         .then(ids => res.json({recipients: ids, success: true}))
         .catch(err => res.status(500).json({ error: err }));
+});
+
+app.post('/send', function (req, res) {
+    console.log("/send", req.body);
+    if (!isValidatedRequest(req, res)) return;
+
+    try {
+        let messages = req.body.messages;
+        let recipients = req.body.recipients;
+        sendMessagesToIDs(recipients, messages);
+        res.json({recipients: recipients, success: true});
+    } catch (err) {
+        res.status(500).json({error: err})
+    }
 });
 
 let pausedUsers = {};
