@@ -767,14 +767,16 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                     type: "web_url",
                                     title: btn.text,
                                     url: btn.postback,
-                                    webview_height_ratio: "compact"
+                                    webview_height_ratio: "compact",
+                                    messenger_extensions: true,
                                 });
                             }else if (btn.postback === "") {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
                                     url: "https://push2aim.github.io/webview/?duration=" + amount,
-                                    webview_height_ratio: "compact"
+                                    webview_height_ratio: "compact",
+                                    messenger_extensions: true,
                                 });
                             } else if (btn.postback === "element_share") {
                                 return ({
