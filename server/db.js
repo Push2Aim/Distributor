@@ -74,17 +74,21 @@ function whereWithArray(table, selector) {
     return table;
 }
 function getAllIDs(selectors) {
-    let out = selectors.map((selector) =>
-        (Array.isArray(selector) ?
-            whereWithArray(Profile, selector) : Profile.where(selector))
-            .fetchAll()
-            .then(profiles => profiles.map(profile => profile.get("fb_id")))
-    );
+    try {
+        let out = selectors.map((selector) =>
+            (Array.isArray(selector) ?
+                whereWithArray(Profile, selector) : Profile.where(selector))
+                .fetchAll()
+                .then(profiles => profiles.map(profile => profile.get("fb_id")))
+        );
 
-    return Promise.all(out).then(ids => {
-        return ids.reduce((acc, cur) => {
-            cur.forEach(id => acc.includes(id) ? acc : acc.push(id))
-            return acc
-        });
-    }).catch(err => console.error("getAllIDs", err));
+        return Promise.all(out).then(ids => {
+            return ids.reduce((acc, cur) => {
+                cur.forEach(id => acc.includes(id) ? acc : acc.push(id))
+                return acc
+            });
+        }).catch(err => console.error("getAllIDs", err));
+    } catch (err) {
+        return Promise.reject("Error on getAllIDs: " + err)
+    }
 }
