@@ -70,10 +70,10 @@ function wakeUp(addresses) {
             });
     });
 }
-let sendMessagesToIDs = function (ids, messages) {
+let sendMessagesToIDs = function (ids, messages, errorHandler) {
     console.log("send Messages to IDs", ids, messages);
     ids.forEach(senderID =>
-        sendMessages(senderID, messages));
+        sendMessages(senderID, messages, 0, errorHandler));
     return ids;
 };
 let isValidatedRequest = function (req, res) {
@@ -103,7 +103,10 @@ app.post('/send', function (req, res) {
     try {
         let messages = req.body.messages;
         let recipients = req.body.recipients;
-        sendMessagesToIDs(recipients, messages);
+        sendMessagesToIDs(recipients, messages, (id, err) => {
+                throw new Error(id, err)
+            }
+        );
         res.json({recipients: recipients, success: true});
     } catch (err) {
         res.status(500).json({error: err})
@@ -434,7 +437,7 @@ function sendSpeech(recipientId, messageText) {
     callSendAPI(messageData);
 }
 
-function sendMessages(senderID, messages, duration) {
+function sendMessages(senderID, messages, duration, errorHandler = sendTextMessage) {
     async.eachOfSeries(messages, function (message, index, callback) {
         var timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
@@ -460,7 +463,7 @@ function sendMessages(senderID, messages, duration) {
     }, error => {
         if (error) {
             console.error(error);
-            sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+            errorHandler(senderID, "Ups, something went wrong: \n" + error);
         }
     });
 }
