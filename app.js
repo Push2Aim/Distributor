@@ -70,11 +70,13 @@ function wakeUp(addresses) {
             });
     });
 }
-let sendMessagesToIDs = function (ids, messages, errorHandler) {
+let sendMessagesToIDs = function (ids, messages) {
     console.log("send Messages to IDs", ids, messages);
-    ids.forEach(senderID =>
-        sendMessages(senderID, messages, 0, errorHandler));
-    return ids;
+    return new Promise((resolve, reject) => {
+        ids.forEach(senderID => {
+            sendMessages(senderID, messages, 0, (id, err) => reject(err), resolve);
+        })
+    })
 };
 let isValidatedRequest = function (req, res) {
     if (req.body.token !== VALIDATION_TOKEN) {
@@ -100,17 +102,14 @@ app.post('/send', function (req, res) {
     console.log("/send", req.body);
     if (!isValidatedRequest(req, res)) return;
 
-    try {
-        let messages = req.body.messages;
-        let recipients = req.body.recipients;
-        sendMessagesToIDs(recipients, messages, (id, err) => {
-                throw new Error(id, err)
-            }
-        );
-        res.json({recipients: recipients, success: true});
-    } catch (err) {
-        res.status(500).json({error: err})
-    }
+    let messages = req.body.messages;
+    let recipients = req.body.recipients;
+    sendMessagesToIDs(recipients, messages)
+        .then(ids => res.json({recipients: ids, success: true}))
+        .catch((err) => {
+            console.error("Error on /send", err);
+            res.status(500).json({error: err})
+        });
 });
 
 let pausedUsers = {};
@@ -418,7 +417,7 @@ function sendApiAiRequest (request, senderID) {
     });
 
     request.on('error', function (error) {
-        console.error(error);
+        console.error("Error on sendApiAiRequest", error);
         sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
@@ -437,8 +436,8 @@ function sendSpeech(recipientId, messageText) {
     callSendAPI(messageData);
 }
 
-function sendMessages(senderID, messages, duration, errorHandler = sendTextMessage) {
-    async.eachOfSeries(messages, function (message, index, callback) {
+function sendMessages(senderID, messages, duration, reject = sendTextMessage, resolve) {
+    async.eachOfSeries(messages, (message, index, callback) => {
         var timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
             case -1:
@@ -461,10 +460,8 @@ function sendMessages(senderID, messages, duration, errorHandler = sendTextMessa
                 break;
         }
     }, error => {
-        if (error) {
-            console.error(error);
-            errorHandler(senderID, "Ups, something went wrong: \n" + error);
-        }
+        if (error) reject(senderID, "Ups, something went wrong: \n" + error);
+        else resolve("Successful sendMessages", senderID, messages);
     });
 }
 /*
@@ -987,7 +984,7 @@ function callSendAPI(messageData, callback, timeOut) {
         json: messageData
     };
 
-    request(requestData, function (error, response, body) {
+    request(requestData, (error, response, body) => {
         dashbot.logOutgoing(requestData, response.body);
 
         if (!error && response.statusCode == 200) {
@@ -1007,8 +1004,9 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error, "messageData: "+ JSON.stringify(messageData));
-            callback(error);
+            callback(new Error("Failed calling Send API " + response.statusCode + " " +
+                response.statusMessage + " " + JSON.stringify(body.error) +
+                " messageData: " + JSON.stringify(messageData)));
         }
     });
 }
