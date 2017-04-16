@@ -401,7 +401,7 @@ function takeAction(response) {
                 return addProfile(response);
         }
     } catch (err) {
-        console.error(err)
+        console.error("caught Error:", err);
     }
 }
 function sendApiAiRequest (request, senderID) {
