@@ -1007,9 +1007,13 @@ function callSendAPI(messageData, callback, timeOut) {
                     recipientId);
             }
         } else {
-            callback(new Error("Failed calling Send API " + response.statusCode + " " +
-                response.statusMessage + " " + JSON.stringify(body.error) +
-                " messageData: " + JSON.stringify(messageData)));
+            try {
+                callback(new Error("Failed calling Send API " + response.statusCode + " " +
+                    response.statusMessage + " " + JSON.stringify(body.error) +
+                    " messageData: " + JSON.stringify(messageData)));
+            } catch (err) {
+                callback;
+            }
         }
     });
 }
