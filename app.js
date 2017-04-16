@@ -437,6 +437,9 @@ function sendSpeech(recipientId, messageText) {
 }
 
 function sendMessages(senderID, messages, duration, reject = sendTextMessage, resolve) {
+    resolve = resolve || function (mes, id, messages) {
+            return console.log(mes, id, messages)
+        };
     async.eachOfSeries(messages, (message, index, callback) => {
         var timeOut = index == messages.length - 1 ? -1 : 0;
         switch (message.type) {
