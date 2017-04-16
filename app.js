@@ -393,6 +393,7 @@ function takeAction(response) {
         db.addProfile(response.sessionId, extractProfile(response.result.contexts));
 
     try {
+        if(response.result.action)
         switch (response.result.action) {
             case "updateProfile":
                 return updateProfile(response);
