@@ -770,7 +770,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: btn.postback,
+                                    url: btn.postback.replace("http://", "https://"),
                                     webview_height_ratio: "compact",
                                     messenger_extensions: true,
                                 });
