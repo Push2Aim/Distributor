@@ -1,7 +1,8 @@
 const bookshelf = require('../bookshelf');
 const Profile = require('./profile');
 
-module.exports = bookshelf.Model.extend({
+var User = bookshelf.Model.extend({
     tableName: 'user',
-    // profile: () => this.belongsTo(Profile)
+    profile: () => this.hasOne('Profile')
 });
+module.exports = bookshelf.model('User', User);

@@ -19,6 +19,7 @@ const
     apiAI = require('apiai'),
     async = require('async');
 const db = require("./server/db.js");
+const profileBuilder = require("./server/profileBuilder.js");
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -513,11 +514,31 @@ function receivedPostback(event) {
     console.log("Received postback for user %d and page %d with payload '%s' " +
         "at %d", senderID, recipientID, payload, timeOfPostback);
 
-    // When a postback is called, we'll send a message back to the sender to
-    // let them know it was successful
-
-    // sendTextMessage(senderID, "Postback called");
-    sendEventRequest(senderID, payload);
+    switch (payload) {
+        case "PROFILE":
+            sendProfile(senderID);
+            break;
+        default:
+            sendEventRequest(senderID, payload);
+    }
+}
+function sendProfile(senderID) {
+    return userInfoRequest(senderID)
+        .then((userInfo) => profileBuilder(senderID)
+            .then(userProfile => ({
+                title: "Your Profile",
+                subtitle: "share it now!",
+                buttons: [
+                    {
+                        text: "view Profile",
+                        postback: "https://push2aim.github.io/profile/?userInfo="
+                        + userInfo + "&userProfile=" + userProfile
+                    }
+                ]
+            }))
+        )
+        .then(message => sendGenericMessage(senderID, message))
+        .catch(err => console.error(err))
 }
 
 /*

@@ -1,12 +1,18 @@
+const bookshelf = require('./bookshelf');
 const User = require("./models/user");
 const Profile = require("./models/profile");
+const Workout = require("./models/workout");
 
 
 module.exports = {
     updateProfile: updateProfile,
     addProfile: addProfile,
     getProfile: getProfile,
-    getAllIDs: getAllIDs
+    getAllIDs: getAllIDs,
+    addWorkout: addWorkout,
+    getWorkouts: getWorkouts,
+    addXp: addWorkout, //TODO ADD
+    getXps: getWorkouts, //TODO ADD
 };
 let addValues = function (from, to, keys) {
     keys.forEach(key => to[key] = from[key]);
@@ -16,14 +22,20 @@ function getProfile(sessionId) {
     let parseUserProfile = function (profile) {
         let userProfile = parsProfile(profile.attributes)
         userProfile = addValues(profile.attributes, userProfile, ["created_at", "updated_at"]);
+        userProfile.workouts = profile.related("workout").toJSON();
+        userProfile.xplogs = profile.related("xplog").toJSON();
         console.log("got Profile", userProfile);
         return userProfile
     };
-    return Profile.where({fb_id: sessionId}).fetch()
+    return fetchProfile(sessionId)
         .then(profile => profile === null ?
             addProfile(sessionId, {}).then(getProfile(sessionId)) :
             parseUserProfile(profile))
         .catch(err => console.error("getProfile", err));
+}
+function fetchProfile(sessionId) {
+    return Profile.where({fb_id: sessionId})
+        .fetch({withRelated: ['workout', 'xplog']});
 }
 function addProfile(sessionId, context) {
     if(!sessionId) return Promise.reject(new Error("no sessionID"));
@@ -53,13 +65,16 @@ function updateProfile(sessionId, context) {
 }
 function parsProfile(context) {
     return {
-        "number_of_workouts": context.number_of_workouts,
         "workout_level": context.workout_level,
-        "ep": context.ep,
+        "xp": context.xp,
         "main_strength": context.main_strength,
         "days_being_on_fitness_journey": context.days_being_on_fitness_journey,
         "subscribed": context.subscribed,
         "user_goal": context.user_goal,
+
+        xp_knowledge: context.xp_knowledge,
+        xp_drill: context.xp_drill,
+        xp_sharing: context.xp_sharing,
     }
 }
 function getValidationError(context) {
@@ -73,12 +88,14 @@ function whereWithArray(table, selector) {
     );
     return table;
 }
+function select(table, selector) {
+    return (Array.isArray(selector) ?
+        whereWithArray(table, selector) : table.where(selector));
+}
 function getAllIDs(selectors) {
     try {
         let out = selectors.map((selector) =>
-            (Array.isArray(selector) ?
-                whereWithArray(Profile, selector) : Profile.where(selector))
-                .fetchAll()
+            select(Profile, selector).fetchAll()
                 .then(profiles => profiles.map(profile => profile.get("fb_id")))
         );
 
@@ -91,4 +108,28 @@ function getAllIDs(selectors) {
     } catch (err) {
         return Promise.reject("Error on getAllIDs: " + err)
     }
+}
+
+function parsWorkout(context = {}) {
+    return {
+        duration: context.duration || 30,
+        location: context.location || "home",
+    }
+}
+function addWorkout(sessionId, context) {
+    if (!sessionId) return Promise.reject(new Error("no sessionID"));
+
+    let info = parsWorkout(context);
+    return fetchProfile(sessionId).then(profile => {
+        info.profile_id = profile.id;
+        return Workout.forge(info, {hasTimestamps: true}).save()
+            .then(workout => console.log("added Workout", workout))
+            .catch(err => console.error("addWorkout", err))
+    })
+}
+function getWorkouts(sessionId) {
+    if (!sessionId) return Promise.reject(new Error("no sessionID"));
+
+    return Profile.where({fb_id: sessionId}).fetch({withRelated: ['workout']})
+        .then(profile => profile.related('workout').toJSON());
 }
