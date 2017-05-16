@@ -29,8 +29,13 @@ function filterMonth(arr) {
 function buildStats(workouts, key) {
     let week = filterWeek(workouts);
     if (week.length <= 0) return [];
+    console.log("week", week)
     let max = week.map(w => w[key]).reduce((a, b) => Math.max(a, b));
     return week.map(w => 100 * w[key] / max)
+}
+function getLastDrill(workouts) {
+    return workouts[workouts.length - 1] ?
+        workouts[workouts.length - 1].created_at : "Here is no Last Drill";
 }
 function buildUserProfile(senderID) {
     return db.getProfile(senderID).then(profile => {
@@ -48,7 +53,7 @@ function buildUserProfile(senderID) {
             duration_avg_lifetime: average(workouts, "duration"),
             duration_max: max(getWeekOfWorkouts(workouts), "duration"),
             duration_heights: buildStats(workouts, "duration"), //the last 7 Day
-            duration_last_drill: workouts[workouts.length - 1].created_at,
+            duration_last_drill: getLastDrill(workouts),
             duration_week_avg: average(filterWeek(workouts), "duration"),
             duration_month_avg: average(filterMonth(workouts), "duration"),
 
