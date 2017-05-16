@@ -2,6 +2,7 @@ const bookshelf = require('./bookshelf');
 const User = require("./models/user");
 const Profile = require("./models/profile");
 const Workout = require("./models/workout");
+const XpLog = require("./models/xplog");
 
 
 module.exports = {
@@ -11,8 +12,8 @@ module.exports = {
     getAllIDs: getAllIDs,
     addWorkout: addWorkout,
     getWorkouts: getWorkouts,
-    addXp: addWorkout, //TODO ADD
-    getXps: getWorkouts, //TODO ADD
+    addXp: addXp,
+    getXps: getXps,
 };
 let addValues = function (from, to, keys) {
     keys.forEach(key => to[key] = from[key]);
@@ -33,9 +34,10 @@ function getProfile(sessionId) {
             parseUserProfile(profile))
         .catch(err => console.error("getProfile", err));
 }
-function fetchProfile(sessionId) {
+function fetchProfile(sessionId, columns = '*') {
     return Profile.where({fb_id: sessionId})
-        .fetch({withRelated: ['workout', 'xplog']});
+        .fetch({withRelated: ['workout', 'xplog'], columns: columns})
+        .catch(err => addProfile(sessionId));
 }
 function addProfile(sessionId, context) {
     if(!sessionId) return Promise.reject(new Error("no sessionID"));
@@ -132,4 +134,41 @@ function getWorkouts(sessionId) {
 
     return Profile.where({fb_id: sessionId}).fetch({withRelated: ['workout']})
         .then(profile => profile.related('workout').toJSON());
+}
+
+function parsXp(context = {}) {
+    return {
+        xp: context.xp || 0,
+    }
+}
+function getXps(sessionId) {
+    if (!sessionId) return Promise.reject(new Error("no sessionID"));
+
+    return Profile.where({fb_id: sessionId}).fetch({withRelated: ['xplog']})
+        .then(profile => profile.related('xplog').toJSON());
+}
+function addXp(sessionId, context) {
+    if (!sessionId) return Promise.reject(new Error("no sessionID"));
+
+    let info = parsXp(context);
+    return fetchProfile(sessionId, 'id').then(profile => {
+        info.profile_id = profile.id;
+
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let buildUpdate = (old) => {
+            let update = parsXp(context);
+            update.updated_at = new Date();
+            update.xp += old.attributes.xp;
+            return update;
+        };
+        return XpLog.where({profile_id: profile.id})
+            .orderBy('created_at', 'DESC')
+            .fetch()
+            .then(xp => xp && xp.attributes.created_at >= today ?
+                xp.save(buildUpdate(xp)) :
+                XpLog.forge(info, {hasTimestamps: true}).save())
+            .then(xp => console.log("added Xp", xp))
+            .catch(err => console.error("addXp", err))
+    })
 }
