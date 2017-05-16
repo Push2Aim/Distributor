@@ -5,7 +5,7 @@ exports.up = function (knex, Promise) {
 
         table.integer("xp").notNullable();
 
-        table.timestamp('created_at').defaultTo(knex.fn.now()).unique();
+        table.timestamps();
     }).then(t => console.log("Table xplog created", t));
 };
 

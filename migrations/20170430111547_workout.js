@@ -6,7 +6,7 @@ exports.up = function (knex, Promise) {
         table.integer("duration").notNullable();
         table.string("location").notNullable();
 
-        table.timestamp('created_at').defaultTo(knex.fn.now());
+        table.timestamps();
     }).then(t => console.log("Table workout created", t));
 };
 
