@@ -154,8 +154,6 @@ function addXp(sessionId, context) {
     return fetchProfile(sessionId, 'id').then(profile => {
         info.profile_id = profile.id;
 
-        let today = new Date();
-        today.setHours(0, 0, 0, 0);
         let buildUpdate = (old) => {
             let update = parsXp(context);
             update.updated_at = new Date();
@@ -165,7 +163,8 @@ function addXp(sessionId, context) {
         return XpLog.where({profile_id: profile.id})
             .orderBy('created_at', 'DESC')
             .fetch()
-            .then(xp => xp && xp.attributes.created_at >= today ?
+            .then(xp => xp && xp.attributes.created_at.toDateString()
+                == new Date().toDateString() ?
                 xp.save(buildUpdate(xp)) :
                 XpLog.forge(info, {hasTimestamps: true}).save())
             .then(xp => console.log("added Xp", xp))
