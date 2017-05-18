@@ -11,7 +11,7 @@ function getWeekOfWorkouts(arr) {
     });
     let out = [];
     for (let day in week)
-        out.push(day);
+        out.push(week[day]);
     return out;
 }
 function filterWeek(arr) {
@@ -28,10 +28,11 @@ function filterMonth(arr) {
 }
 function buildStats(workouts, key) {
     let week = filterWeek(workouts);
-    if (week.length <= 0) return [];
-    console.log("week", week)
+    if (week.length <= 0) return [100, 100, 100, 100, 100, 100, 100];
     let max = week.map(w => w[key]).reduce((a, b) => Math.max(a, b));
-    return week.map(w => 100 * w[key] / max)
+    let out = week.map(w => 100 * w[key] / max);
+    while (out.length < 7) out.push(0);
+    return out
 }
 function getLastDrill(workouts) {
     return workouts[workouts.length - 1] ?
@@ -75,7 +76,7 @@ function buildUserProfile(senderID) {
 }
 function max(arr, key) {
     if (arr.length <= 0) return 0;
-    return arr.reduce((a, b) => Math.max(a[key], b[key]));
+    return arr.reduce((a, b) => Math.max(a[key], b[key]))[key];
 }
 function average(arr, key) {
     if (arr.length <= 0) return 0;
