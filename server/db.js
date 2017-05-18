@@ -70,7 +70,6 @@ function parsProfile(context) {
         "workout_level": context.workout_level,
         "xp": context.xp,
         "main_strength": context.main_strength,
-        "days_being_on_fitness_journey": context.days_being_on_fitness_journey,
         "subscribed": context.subscribed,
         "user_goal": context.user_goal,
 

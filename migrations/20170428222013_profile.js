@@ -5,7 +5,6 @@ exports.up = function (knex, Promise) {
         table.integer("workout_level").defaultTo(0);
         table.biginteger("xp").defaultTo(0);
         table.string("main_strength").defaultTo("started");
-        table.integer("days_being_on_fitness_journey").defaultTo(0);
         table.boolean("subscribed").defaultTo(false);
         table.string("user_goal").defaultTo("else");
 
