@@ -149,23 +149,27 @@ function getXps(sessionId) {
 function addXp(sessionId, context) {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
 
-    let info = parsXp(context);
-    return fetchProfile(sessionId, 'id').then(profile => {
-        info.profile_id = profile.id;
+    let buildUpdate = (old) => {
+        let update = parsXp(context);
+        update.updated_at = new Date();
+        update.xp += old.attributes.xp;
+        return update;
+    };
 
-        let buildUpdate = (old) => {
-            let update = parsXp(context);
-            update.updated_at = new Date();
-            update.xp += old.attributes.xp;
-            return update;
-        };
+    function buildNew(context, profile) {
+        let info = parsXp(context);
+        info.profile_id = profile.id;
+        return info;
+    }
+
+    return fetchProfile(sessionId, 'id').then(profile => {
         return XpLog.where({profile_id: profile.id})
             .orderBy('created_at', 'DESC')
             .fetch()
-            .then(xp => xp && xp.attributes.created_at.toDateString()
+            .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
                 == new Date().toDateString() ?
-                xp.save(buildUpdate(xp)) :
-                XpLog.forge(info, {hasTimestamps: true}).save())
+                xpLog.save(buildUpdate(xpLog)) :
+                XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save())
             .then(xp => console.log("added Xp", xp))
             .catch(err => console.error("addXp", err))
     })
