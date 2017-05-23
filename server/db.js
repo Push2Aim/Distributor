@@ -28,7 +28,7 @@ function getProfile(sessionId) {
         console.log("got Profile", userProfile);
         return userProfile
     };
-    return fetchProfile(sessionId)
+    return fetchProfile(sessionId) //TODO catch required ERROR with addProfile
         .then(profile => profile === null ?
             addProfile(sessionId, {}).then(getProfile(sessionId)) :
             parseUserProfile(profile))
@@ -36,7 +36,7 @@ function getProfile(sessionId) {
 }
 function fetchProfile(sessionId, columns = '*') {
     return Profile.where({fb_id: sessionId})
-        .fetch({withRelated: ['workout', 'xplog'], columns: columns})
+        .fetch({withRelated: ['workout', 'xplog'], columns: columns}) //TODO Add required
         .catch(err => addProfile(sessionId));
 }
 function addProfile(sessionId, context) {
@@ -58,7 +58,7 @@ function updateProfile(sessionId, context) {
         return update;
     };
 
-    return Profile.where({fb_id: sessionId}).fetch()
+    return Profile.where({fb_id: sessionId}).fetch() //TODO add required and catch required ERROR with addProfile
         .then(profile => profile === null ?
             addProfile(sessionId, context) :
             profile.save(buildUpdate()))
@@ -121,7 +121,7 @@ function addWorkout(sessionId, context) {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
 
     let info = parsWorkout(context);
-    return fetchProfile(sessionId).then(profile => {
+    return fetchProfile(sessionId).then(profile => { //TODO catch required ERROR with addProfile
         info.profile_id = profile.id;
         return Workout.forge(info, {hasTimestamps: true}).save()
             .then(workout => console.log("added Workout", workout))
@@ -146,7 +146,7 @@ function getXps(sessionId) {
     return Profile.where({fb_id: sessionId}).fetch({withRelated: ['xplog']})
         .then(profile => profile.related('xplog').toJSON());
 }
-function addXp(sessionId, context) {
+function addXp(sessionId, context, type = "knowledge") {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
 
     let buildUpdate = (old) => {
@@ -162,15 +162,59 @@ function addXp(sessionId, context) {
         return info;
     }
 
-    return fetchProfile(sessionId, 'id').then(profile => {
-        return XpLog.where({profile_id: profile.id})
-            .orderBy('created_at', 'DESC')
-            .fetch()
-            .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
+    function buildProfileUpdate(profile) {
+        let update = {};
+        let additionalXP = parsXp(context).xp;
+
+        function buildXpTypes(addKnowledge, addDrill, addSharing) {
+            let totalXp = profile.xp + xpLevel(profile.workout_level);
+            update.xp_knowledge = (profile.attributes.xp_knowledge * totalXp
+                + addKnowledge) / (totalXp + additionalXP);
+            update.xp_drill = (profile.attributes.xp_drill * totalXp
+                + addDrill) / (totalXp + additionalXP);
+            update.xp_xharing = (profile.attributes.xp_sharing * totalXp
+                + addSharing) / (totalXp + additionalXP);
+        }
+
+        if (additionalXP > 0) {
+            switch (type) {
+                case "knowledge":
+                    buildXpTypes(additionalXP, 0, 0);
+                    break;
+                case "drill":
+                    buildXpTypes(0, additionalXP, 0);
+                    break;
+                case "sharing":
+                    buildXpTypes(0, 0, additionalXP);
+                    break;
+            }
+        }
+        update.updated_at = new Date();
+        return update;
+    }
+
+    return fetchProfile(sessionId, 'id').then(profile => { //TODO catch required ERROR with addProfile
+        profile.save(buildProfileUpdate(profile))
+            .then(profile => XpLog.where({profile_id: profile.id})
+                .orderBy('created_at', 'DESC')
+                .fetch()
+                .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
                 == new Date().toDateString() ?
-                xpLog.save(buildUpdate(xpLog)) :
-                XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save())
-            .then(xp => console.log("added Xp", xp))
-            .catch(err => console.error("addXp", err))
+                    xpLog.save(buildUpdate(xpLog)) :
+                    XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save())
+                .then(xp => console.log("added Xp", xp))
+                .catch(err => console.error("addXp", err))
+            )
     })
+
 }
+function xpNextLevel(level) {//TODO get from profileBuilder
+    return Math.pow(5 * 1.2, level - 1);
+}
+function xpLevel(level) {
+    let sum = 0;
+    for (let i = 1; i < level; i++)
+        sum += xpNextLevel(i);
+    return sum;
+}
+

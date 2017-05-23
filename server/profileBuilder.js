@@ -78,7 +78,7 @@ function buildUserProfile(senderID) {
             amount_avg_week: 25, //average(mergeWorkouts(workouts), "amount"),
             amount_heights: [10, 20, 30, 100], //the last 4 weeks
 
-            xp_next_level: Math.pow(5 * 1.2, (profile.workout_level - 1)),
+            xp_next_level: xpNextLevel(profile.workout_level),
             xp_max: max(filterLastDays(xplogs, 7), "xp"),
             xp_heights: buildStats(filterLastDays(xplogs, 7), "xp"), //the last 7 Day
             xp_knowledge: profile.xp_knowledge,
@@ -86,6 +86,9 @@ function buildUserProfile(senderID) {
             xp_sharing: profile.xp_sharing,
         })
     })
+}
+function xpNextLevel(level) {
+    return Math.pow(5 * 1.2, level - 1);
 }
 function max(arr, key) {
     if (arr.length <= 0) return 0;
