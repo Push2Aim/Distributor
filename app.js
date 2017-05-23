@@ -122,11 +122,35 @@ app.post('/pause', function (req, res) {
     res.send("ok");
 });
 
+let xpToken = {};
+app.post('/xp', function (req, res) {
+    let data = xpToken[req.body.token];
+    console.log("/xp", req.body.token, data);
+    db.addXp(data.userId, data.context, "drill")
+        .then(xp => res.json({success: true}))
+        .catch((err) => {
+            console.error("Error on /xp", err);
+            res.status(500).json({error: err})
+        });
+    res.send("ok");
+});
+
+function buildToken(userId, duration) {
+    let token = userId + new Date();
+    xpToken[token].userId = userId;
+    xpToken[token].context = {
+        xp: duration * 10
+    };
+    console.log("buildToken", token, xpToken[token]);
+    return token;
+}
 /*
  * Use your own validation token. Check that the token used in the Webhook 
  * setup is the same token used here.
  *
  */
+
+
 app.get('/webhook', function (req, res) {
     if (req.query['hub.mode'] === 'subscribe' &&
         req.query['hub.verify_token'] === VALIDATION_TOKEN) {
@@ -137,8 +161,6 @@ app.get('/webhook', function (req, res) {
         res.sendStatus(403);
     }
 });
-
-
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
  * webhook. Be sure to subscribe your app to your page to receive callbacks
@@ -146,6 +168,7 @@ app.get('/webhook', function (req, res) {
  * https://developers.facebook.com/docs/messenger-platform/product-overview/setup#subscribe_app
  *
  */
+
 app.post('/webhook', function (req, res) {
     dashbot.logIncoming(req.body);
 
@@ -186,12 +209,12 @@ app.post('/webhook', function (req, res) {
         res.sendStatus(200);
     }
 });
-
 /*
  * This path is used for account linking. The account linking call-to-action
  * (sendAccountLinking) is pointed to this URL. 
  * 
  */
+
 app.get('/authorize', function (req, res) {
     var accountLinkingToken = req.query.account_linking_token;
     var redirectURI = req.query.redirect_uri;
@@ -209,7 +232,6 @@ app.get('/authorize', function (req, res) {
         redirectURISuccess: redirectURISuccess
     });
 });
-
 /*
  * Verify that the callback came from Facebook. Using the App Secret from 
  * the App Dashboard, we can verify the signature that is sent with each 
@@ -218,6 +240,7 @@ app.get('/authorize', function (req, res) {
  * https://developers.facebook.com/docs/graph-api/webhooks#setup
  *
  */
+
 function verifyRequestSignature(req, res, buf) {
     var signature = req.headers["x-hub-signature"];
 
@@ -240,7 +263,6 @@ function verifyRequestSignature(req, res, buf) {
         }
     }
 }
-
 /*
  * Authorization Event
  *
@@ -249,6 +271,7 @@ function verifyRequestSignature(req, res, buf) {
  * https://developers.facebook.com/docs/messenger-platform/webhook-reference/authentication
  *
  */
+
 function receivedAuthentication(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -273,18 +296,17 @@ function receivedAuthentication(event) {
 /*
  * Message Event
  *
- * This event is called when a message is sent to your page. The 'message' 
+ * This event is called when a message is sent to your page. The 'message'
  * object format can vary depending on the kind of message that was received.
  * Read more at https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-received
  *
- * For this example, we're going to echo any text that we get. If we get some 
+ * For this example, we're going to echo any text that we get. If we get some
  * special keywords ('button', 'generic', 'receipt'), then we'll send back
- * examples of those bubbles to illustrate the special message bubbles we've 
- * created. If we receive a message with an attachment (image, video, audio), 
+ * examples of those bubbles to illustrate the special message bubbles we've
+ * created. If we receive a message with an attachment (image, video, audio),
  * then we'll simply confirm that we've received the attachment.
- * 
+ *
  */
-
 function receivedMessage(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -365,6 +387,7 @@ function sendTextRequest(senderID, message) {
             sendApiAiRequest(request, senderID);
         }).catch(err => console.error(err));
 }
+
 function userInfoRequest(userId) {
     return new Promise((resolve, reject) => {
         request({
@@ -384,7 +407,6 @@ function userInfoRequest(userId) {
             });
     });
 }
-
 function takeAction(response) {
     let extractProfile = contexts => contexts
         .find(context => context.name === "userprofile").parameters;
@@ -432,6 +454,7 @@ function sendApiAiRequest (request, senderID) {
     });
     request.end();
 }
+
 function sendSpeech(recipientId, messageText) {
     var messageData = {
         recipient: {
@@ -445,7 +468,6 @@ function sendSpeech(recipientId, messageText) {
 
     callSendAPI(messageData);
 }
-
 function sendMessages(senderID, messages, duration, reject = sendTextMessage, resolve) {
     resolve = resolve || function (mes, id, messages) {
             return console.log(mes, id, messages)
@@ -484,6 +506,8 @@ function sendMessages(senderID, messages, duration, reject = sendTextMessage, re
  * these fields at https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-delivered
  *
  */
+
+
 function receivedDeliveryConfirmation(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -501,8 +525,6 @@ function receivedDeliveryConfirmation(event) {
 
     console.log("All message before %d were delivered.", watermark);
 }
-
-
 /*
  * Postback Event
  *
@@ -530,6 +552,7 @@ function receivedPostback(event) {
             sendEventRequest(senderID, payload);
     }
 }
+
 function sendProfile(senderID) {
     return userInfoRequest(senderID)
         .then((userInfo) => profileBuilder(senderID)
@@ -548,7 +571,6 @@ function sendProfile(senderID) {
         .then(message => sendGenericMessage(senderID, message))
         .catch(err => console.error(err))
 }
-
 /*
  * Message Read Event
  *
@@ -556,6 +578,7 @@ function sendProfile(senderID) {
  * https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-read
  * 
  */
+
 function receivedMessageRead(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -569,7 +592,6 @@ function receivedMessageRead(event) {
 
     wakeUp(process.env.ADDRESSES.split(","));
 }
-
 /*
  * Account Link Event
  *
@@ -578,6 +600,7 @@ function receivedMessageRead(event) {
  * https://developers.facebook.com/docs/messenger-platform/webhook-reference/account-linking
  * 
  */
+
 function receivedAccountLink(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
@@ -588,11 +611,11 @@ function receivedAccountLink(event) {
     console.log("Received account link event with for user %d with status %s " +
         "and auth code %s ", senderID, status, authCode);
 }
-
 /*
  * Send an image using the Send API.
  *
  */
+
 function sendImageMessage(recipientId, url, callback, timeOut) {
     var messageData = {
         recipient: {
@@ -623,11 +646,11 @@ function sendCustomPayload(recipientId, payload, callback, timeOut) {
 
     callSendAPI(messageData, callback, timeOut);
 }
-
 /*
  * Send a Gif using the Send API.
  *
  */
+
 function sendGifMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -645,11 +668,11 @@ function sendGifMessage(recipientId) {
 
     callSendAPI(messageData);
 }
-
 /*
  * Send audio using the Send API.
  *
  */
+
 function sendAudioMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -667,11 +690,11 @@ function sendAudioMessage(recipientId) {
 
     callSendAPI(messageData);
 }
-
 /*
  * Send a video using the Send API.
  *
  */
+
 function sendVideoMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -689,11 +712,11 @@ function sendVideoMessage(recipientId) {
 
     callSendAPI(messageData);
 }
-
 /*
  * Send a file using the Send API.
  *
  */
+
 function sendFileMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -711,11 +734,11 @@ function sendFileMessage(recipientId) {
 
     callSendAPI(messageData);
 }
-
 /*
  * Send a text message using the Send API.
  *
  */
+
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
     messageText = messageText.split(" action: ")[0];
     var messageData = {
@@ -730,11 +753,11 @@ function sendTextMessage(recipientId, messageText, callback, timeOut) {
 
     callSendAPI(messageData, callback, timeOut);
 }
-
 /*
  * Send a button message using the Send API.
  *
  */
+
 function sendButtonMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -766,7 +789,6 @@ function sendButtonMessage(recipientId) {
 
     callSendAPI(messageData);
 }
-
 /*
  * Send a Structured Message (Generic Message type) using the Send API.
  *
@@ -796,10 +818,13 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                     payload: btn.postback
                                 });
                             } else if (btn.postback.startsWith("https://") || btn.postback.startsWith("http://")) {
+                                let url = btn.postback.replace("http://", "https://");
+                                if (url.startsWith("https://push2aim.github.io/webview/?duration="))
+                                    url += "&token=" + buildToken(recipientId, amount);
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: btn.postback.replace("http://", "https://"),
+                                    url: url,
                                     webview_height_ratio: "compact",
                                     messenger_extensions: true,
                                 });
@@ -807,7 +832,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: "https://push2aim.github.io/webview/?duration=" + amount,
+                                    url: "https://push2aim.github.io/webview/?duration=" + amount + "&token=" + buildToken(recipientId, amount),
                                     webview_height_ratio: "compact",
                                     messenger_extensions: true,
                                 });
