@@ -76,6 +76,8 @@ function parsProfile(context) {
         xp_knowledge: context.xp_knowledge,
         xp_drill: context.xp_drill,
         xp_sharing: context.xp_sharing,
+        xp_kindness: context.xp_kindness,
+        xp_activeness: context.xp_activeness,
     }
 }
 function getValidationError(context) {
@@ -166,7 +168,7 @@ function addXp(sessionId, context, type = "knowledge") {
         let update = {};
         let additionalXP = parsXp(context).xp;
 
-        function buildXpTypes(addKnowledge, addDrill, addSharing) {
+        function buildXpTypes(addKnowledge, addDrill, addSharing, addKindness, addActiveness) {
             let totalXp = profile.xp + xpLevel(profile.workout_level);
             update.xp_knowledge = (profile.attributes.xp_knowledge * totalXp
                 + addKnowledge) / (totalXp + additionalXP);
@@ -174,18 +176,28 @@ function addXp(sessionId, context, type = "knowledge") {
                 + addDrill) / (totalXp + additionalXP);
             update.xp_xharing = (profile.attributes.xp_sharing * totalXp
                 + addSharing) / (totalXp + additionalXP);
+            update.xp_kindness = (profile.attributes.xp_kindness * totalXp
+                + addKindness) / (totalXp + additionalXP);
+            update.xp_activeness = (profile.attributes.xp_activeness * totalXp
+                + addActiveness) / (totalXp + additionalXP);
         }
 
         if (additionalXP > 0) {
             switch (type) {
                 case "knowledge":
-                    buildXpTypes(additionalXP, 0, 0);
+                    buildXpTypes(additionalXP, 0, 0, 0, 0);
                     break;
                 case "drill":
-                    buildXpTypes(0, additionalXP, 0);
+                    buildXpTypes(0, additionalXP, 0, 0, 0);
                     break;
                 case "sharing":
-                    buildXpTypes(0, 0, additionalXP);
+                    buildXpTypes(0, 0, additionalXP, 0, 0);
+                    break;
+                case "kindness":
+                    buildXpTypes(0, 0, 0, additionalXP, 0);
+                    break;
+                case "activeness":
+                    buildXpTypes(0, 0, 0, 0, additionalXP);
                     break;
             }
         }

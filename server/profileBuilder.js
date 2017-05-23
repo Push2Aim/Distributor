@@ -84,6 +84,8 @@ function buildUserProfile(senderID) {
             xp_knowledge: profile.xp_knowledge,
             xp_drill: profile.xp_drill,
             xp_sharing: profile.xp_sharing,
+            xp_kindness: profile.xp_kindness,
+            xp_activeness: profile.xp_activeness,
         })
     })
 }
