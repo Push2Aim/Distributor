@@ -393,13 +393,21 @@ function takeAction(response) {
     let addProfile = response =>
         db.addProfile(response.sessionId, extractProfile(response.result.contexts));
 
+    function addXP(sessionId, type, amount) {
+        db.addXp(sessionId, {xp: amount}, type)
+    }
+
     try {
-        if(response.result.action)
-        switch (response.result.action) {
-            case "updateProfile":
-                return updateProfile(response);
-            case "addProfile":
-                return addProfile(response);
+        if(response.result.action) {
+            let actionSplit = response.result.action.toLowerCase().split("_");
+            switch (actionSplit[0]) {
+                case "updateprofile":
+                    return updateProfile(response);
+                case "addprofile":
+                    return addProfile(response);
+                case "xp":
+                    return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
+            }
         }
     } catch (err) {
         console.error("caught Error:", err);
