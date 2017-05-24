@@ -126,7 +126,7 @@ let xpToken = {};
 app.post('/xp', function (req, res) {
     let data = xpToken[req.body.token];
     console.log("/xp", req.body.token, data);
-    db.addXp(data.userId, data.context, "drill")
+    db.addXp(data.userId, data.context, req.body.type || "drill")
         .then(xp => res.json({success: true}))
         .catch((err) => {
             console.error("Error on /xp", err);
