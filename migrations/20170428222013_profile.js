@@ -4,7 +4,6 @@ exports.up = function (knex, Promise) {
         table.biginteger("fb_id").notNullable().unique();
         table.integer("workout_level").defaultTo(0);
         table.biginteger("xp").defaultTo(0);
-        table.string("main_strength").defaultTo("started");
         table.boolean("subscribed").defaultTo(false);
         table.string("user_goal").defaultTo("else");
 

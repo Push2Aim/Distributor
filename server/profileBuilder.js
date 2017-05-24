@@ -51,6 +51,14 @@ function getDaysBeingOnFitnessJourney(workouts) {
     }
     return out;
 }
+function getMainStrength(strength) {
+    strength.Started = 0;
+    let max = "Started";
+    for (let key in strength)
+        if (strength[max] < strength[key]) max = key;
+
+    return max;
+}
 function buildUserProfile(senderID) {
     return db.getProfile(senderID).then(profile => {
         let workouts = profile.workouts;
@@ -59,7 +67,13 @@ function buildUserProfile(senderID) {
             workout_level: profile.workout_level,
             xp: profile.xp,
             days_being_on_fitness_journey: getDaysBeingOnFitnessJourney(workouts),
-            main_strength: profile.main_strength,
+            main_strength: getMainStrength({
+                Knowledge: profile.xp_knowledge,
+                Drill: profile.xp_drill,
+                Sharing: profile.xp_sharing,
+                Kindness: profile.xp_kindness,
+                Activeness: profile.xp_activeness,
+            }),
             user_goal: profile.user_goal,
 
             number_of_workouts: workouts.length,
