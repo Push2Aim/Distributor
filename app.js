@@ -71,11 +71,11 @@ function wakeUp(addresses) {
             });
     });
 }
-let sendMessagesToIDs = function (ids, messages) {
+let sendMessagesToIDs = function (ids, messages, url) {
     console.log("send Messages to IDs", ids, messages);
     return new Promise((resolve, reject) => {
         ids.forEach(senderID => {
-            sendMessages(senderID, messages, 0, (id, err) => reject(err), resolve);
+            sendMessages(senderID, messages, 0, url, (id, err) => reject(err), resolve);
         })
     })
 };
@@ -94,7 +94,7 @@ app.post('/subscription', function (req, res) {
     let messages = req.body.messages;
     let selectors = req.body.selectors;
     db.getAllIDs(selectors)
-        .then(ids => sendMessagesToIDs(ids, messages))
+        .then(ids => sendMessagesToIDs(ids, messages, req.headers.host))
         .then(ids => res.json({recipients: ids, success: true}))
         .catch(err => res.status(500).json({ error: err }));
 });
@@ -105,7 +105,7 @@ app.post('/send', function (req, res) {
 
     let messages = req.body.messages;
     let recipients = req.body.recipients;
-    sendMessagesToIDs(recipients, messages)
+    sendMessagesToIDs(recipients, messages, req.headers.host)
         .then(ids => res.json({recipients: ids, success: true}))
         .catch((err) => {
             console.error("Error on /send", err);
@@ -187,7 +187,7 @@ app.post('/webhook', function (req, res) {
                 if (messagingEvent.optin) {
                     receivedAuthentication(messagingEvent);
                 } else if (messagingEvent.postback) {
-                    receivedPostback(messagingEvent);
+                    receivedPostback(messagingEvent, req.headers.host);
                 } else if (messagingEvent.message) {
                     receivedMessage(messagingEvent);
                 } else if (messagingEvent.delivery) {
@@ -348,7 +348,7 @@ function receivedMessage(event) {
     }
 }
 // exports.sendEventRequest = sendEventRequest;
-function sendEventRequest(senderID, eventName) {
+function sendEventRequest(senderID, eventName, url) {
     let event = {
         name: eventName,
         data: {}
@@ -358,7 +358,7 @@ function sendEventRequest(senderID, eventName) {
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .eventRequest(event,options);
-            sendApiAiRequest(request, senderID);
+            sendApiAiRequest(request, senderID, url);
         }).catch(err => console.error(err));
 }
 // exports.sendTextRequest = sendTextRequest;
@@ -384,7 +384,7 @@ function sendTextRequest(senderID, message) {
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .textRequest(message, options);
-            sendApiAiRequest(request, senderID);
+            sendApiAiRequest(request, senderID, url);
         }).catch(err => console.error(err));
 }
 
@@ -435,7 +435,7 @@ function takeAction(response) {
         console.error("caught Error:", err);
     }
 }
-function sendApiAiRequest (request, senderID) {
+function sendApiAiRequest(request, senderID, url) {
     sendTypingOn(senderID);
 
     request.on('response', function (response) {
@@ -444,7 +444,7 @@ function sendApiAiRequest (request, senderID) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-            sendMessages(senderID, messages, response.result.parameters.duration);
+            sendMessages(senderID, messages, response.result.parameters.duration, url);
         else sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
@@ -468,7 +468,7 @@ function sendSpeech(recipientId, messageText) {
 
     callSendAPI(messageData);
 }
-function sendMessages(senderID, messages, duration, reject = sendTextMessage, resolve) {
+function sendMessages(senderID, messages, duration, url, reject = sendTextMessage, resolve) {
     resolve = resolve || function (mes, id, messages) {
             return console.log(mes, id, messages)
         };
@@ -482,7 +482,7 @@ function sendMessages(senderID, messages, duration, reject = sendTextMessage, re
                 sendTextMessage(senderID, message.speech, callback, timeOut);
                 break;
             case 1:
-                sendGenericMessage(senderID, message, callback, timeOut, duration);
+                sendGenericMessage(senderID, message, callback, timeOut, duration, url);
                 break;
             case 2:
                 sendQuickReply(senderID, message, callback, timeOut);
@@ -532,7 +532,7 @@ function receivedDeliveryConfirmation(event) {
  * https://developers.facebook.com/docs/messenger-platform/webhook-reference/postback-received
  * 
  */
-function receivedPostback(event) {
+function receivedPostback(event, url) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
     var timeOfPostback = event.timestamp;
@@ -549,7 +549,7 @@ function receivedPostback(event) {
             sendProfile(senderID);
             break;
         default:
-            sendEventRequest(senderID, payload);
+            sendEventRequest(senderID, payload, url);
     }
 }
 
@@ -793,8 +793,14 @@ function sendButtonMessage(recipientId) {
  * Send a Structured Message (Generic Message type) using the Send API.
  *
  */
-function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
+function sendGenericMessage(recipientId, message, callback, timeOut, duration, url) {
     let amount = duration ? duration.amount : 30;
+
+    function buildXpData() {
+        return "&token=" + buildToken(recipientId, amount)
+            + "&url=" + url;
+    }
+
     var messageData = {
         recipient: {
             id: recipientId
@@ -820,7 +826,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                             } else if (btn.postback.startsWith("https://") || btn.postback.startsWith("http://")) {
                                 let url = btn.postback.replace("http://", "https://");
                                 if (url.startsWith("https://push2aim.github.io/webview/?duration="))
-                                    url += "&token=" + buildToken(recipientId, amount);
+                                    url += buildXpData();
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
@@ -832,7 +838,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
-                                    url: "https://push2aim.github.io/webview/?duration=" + amount + "&token=" + buildToken(recipientId, amount),
+                                    url: "https://push2aim.github.io/webview/?duration=" + amount + buildXpData(),
                                     webview_height_ratio: "compact",
                                     messenger_extensions: true,
                                 });
