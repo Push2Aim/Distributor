@@ -151,10 +151,11 @@ function getXps(sessionId) {
 function addXp(sessionId, context, type = "knowledge") {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
 
-    let buildUpdate = (old) => {
+    let buildUpdate = (old, profile) => {
         let update = parsXp(context);
         update.updated_at = new Date();
-        update.xp += old.attributes.xp;
+        update.xp += old.attributes.xp
+            % xpNextLevel(profile.attributes.workout_level);
         return update;
     };
 
@@ -169,7 +170,7 @@ function addXp(sessionId, context, type = "knowledge") {
         let additionalXP = parsXp(context).xp;
 
         function buildXpTypes(addKnowledge, addDrill, addSharing, addKindness, addActiveness) {
-            let totalXp = profile.xp + xpLevel(profile.workout_level);
+            let totalXp = profile.attributes.xp + xpLevel(profile.workout_level);
             update.xp_knowledge = (profile.attributes.xp_knowledge * totalXp
                 + addKnowledge) / (totalXp + additionalXP);
             update.xp_drill = (profile.attributes.xp_drill * totalXp
@@ -201,6 +202,9 @@ function addXp(sessionId, context, type = "knowledge") {
                     break;
             }
         }
+        if (profile.attributes.xp + additionalXP
+            >= xpNextLevel(profile.attributes.workout_level))
+            update.workout_level = profile.attributes.workout_level + 1;
         update.updated_at = new Date();
         return update;
     }
@@ -212,7 +216,7 @@ function addXp(sessionId, context, type = "knowledge") {
                 .fetch()
                 .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
                 == new Date().toDateString() ?
-                    xpLog.save(buildUpdate(xpLog)) :
+                    xpLog.save(buildUpdate(xpLog, profile)) :
                     XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save())
                 .then(xp => console.log("added Xp", xp))
                 .catch(err => console.error("addXp", err))
