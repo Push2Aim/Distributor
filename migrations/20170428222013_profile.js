@@ -10,6 +10,8 @@ exports.up = function (knex, Promise) {
         table.decimal("xp_knowledge").defaultTo(0);
         table.decimal("xp_drill").defaultTo(0);
         table.decimal("xp_sharing").defaultTo(0);
+        table.decimal("xp_kindness").defaultTo(0);
+        table.decimal("xp_activeness").defaultTo(0);
 
         table.timestamps();
     }).then(t => console.log("Table profile created", t));
