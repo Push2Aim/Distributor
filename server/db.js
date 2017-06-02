@@ -65,11 +65,10 @@ function updateProfile(sessionId, context) {
         .then(profile => console.log("updated Profile", profile))
         .catch(err => console.error("updateProfile", err));
 }
-function parsProfile(context) {
+function parsProfile(context = {}) {
     return {
         "workout_level": context.workout_level,
         "xp": context.xp,
-        "main_strength": context.main_strength,
         "subscribed": context.subscribed,
         "user_goal": context.user_goal,
 
@@ -149,14 +148,15 @@ function getXps(sessionId) {
         .then(profile => profile.related('xplog').toJSON());
 }
 function getDaysActive(sessionId) {
-    getXps(sessionId).then(log => {
-        for (let i = 0; i < log.length - 1; i++) {
-            let index = log.length - 1 - i;
-            let d = log[index - 1].created_at;
-            d.setDate(d.getDate() + 1);
-            if (log[index].created_at.getDate() != d) return i; //TODO TEST
+    return getXps(sessionId).then(log => {
+        log = log.sort((a,b) => a.created_at - b.created_at);
+        let i = 0;
+        for (; i < log.length - 1; i++) {
+            if (log[log.length - 1].created_at.getDate()
+                != log[(log.length - 1 - i)].created_at.getDate()) break;
         }
-    }); //TODO calculate how many days in row
+        return i;
+    });
 }
 function addXp(sessionId, context, type = "activeness") {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
@@ -175,22 +175,23 @@ function addXp(sessionId, context, type = "activeness") {
         return info;
     }
 
+    function buildActivenessContext(daysActive) {
+        console.log("daysActive", daysActive)
+        return {xp: daysActive}
+    }
+
     function buildProfileUpdate(profile) {
         let update = {};
         let additionalXP = parsXp(context).xp;
 
         function buildXpTypes(addKnowledge, addDrill, addSharing, addKindness, addActiveness) {
             let totalXp = profile.attributes.xp + xpLevel(profile.workout_level);
-            update.xp_knowledge = (profile.attributes.xp_knowledge * totalXp
-                + addKnowledge) / (totalXp + additionalXP);
-            update.xp_drill = (profile.attributes.xp_drill * totalXp
-                + addDrill) / (totalXp + additionalXP);
-            update.xp_xharing = (profile.attributes.xp_sharing * totalXp
-                + addSharing) / (totalXp + additionalXP);
-            update.xp_kindness = (profile.attributes.xp_kindness * totalXp
-                + addKindness) / (totalXp + additionalXP);
-            update.xp_activeness = (profile.attributes.xp_activeness * totalXp
-                + addActiveness) / (totalXp + additionalXP);
+            let sum = totalXp + additionalXP;
+            update.xp_knowledge = (profile.attributes.xp_knowledge * totalXp + addKnowledge) / sum;
+            update.xp_drill = (profile.attributes.xp_drill * totalXp + addDrill) / sum;
+            update.xp_sharing = (profile.attributes.xp_sharing * totalXp + addSharing) / sum;
+            update.xp_kindness = (profile.attributes.xp_kindness * totalXp + addKindness) / sum;
+            update.xp_activeness = (profile.attributes.xp_activeness * totalXp + addActiveness) / sum;
         }
 
         if (additionalXP > 0) {
@@ -216,24 +217,23 @@ function addXp(sessionId, context, type = "activeness") {
             >= xpNextLevel(profile.attributes.workout_level))
             update.workout_level = profile.attributes.workout_level + 1;
         update.updated_at = new Date();
+        console.log("profile update", update)
         return update;
     }
 
-    function buildActivenessContext(daysActive) {
-        return {xp: daysActive}
-    }
-
-    return fetchProfile(sessionId, 'id').then(profile => { //TODO catch required ERROR with addProfile
+    //TODO fetch id + xp
+    return fetchProfile(sessionId, '*').then(profile => { //TODO catch required ERROR with addProfile
         profile.save(buildProfileUpdate(profile))
             .then(profile => XpLog.where({profile_id: profile.id})
                 .orderBy('created_at', 'DESC')
                 .fetch()
                 .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
-                == new Date().toDateString() ?
-                    xpLog.save(buildUpdate(xpLog, profile)) :
+                    == new Date().toDateString() ?
+                        xpLog.save(buildUpdate(xpLog, profile)) :
                         XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save()
-                            .then(xp => getDaysActive(sessionId).then(days =>
-                                addXp(sessionId, buildActivenessContext(days), "activeness")))
+                            .then(xp => getDaysActive(sessionId))
+                            .then(numDays =>
+                                addXp(sessionId, buildActivenessContext(numDays), "activeness"))
                 )
                 .then(xp => console.log("added Xp", xp))
                 .catch(err => console.error("addXp", err))
