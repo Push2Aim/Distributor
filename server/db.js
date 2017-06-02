@@ -152,8 +152,10 @@ function getDaysActive(sessionId) {
         log = log.sort((a,b) => a.created_at - b.created_at);
         let i = 0;
         for (; i < log.length - 1; i++) {
-            if (log[log.length - 1].created_at.getDate()
-                != log[(log.length - 1 - i)].created_at.getDate()) break;
+            let index = log.length - 1 - i;
+            let d = new Date(log[index - 1].created_at);
+            d.setDate(d.getDate() + 7);
+            if (d < log[(index)].created_at) break;
         }
         return i;
     });
