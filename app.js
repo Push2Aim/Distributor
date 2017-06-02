@@ -1088,3 +1088,5 @@ app.listen(app.get('port'), function () {
 
 module.exports = app;
 
+// db.addProfile(5)
+db.addXp(5, {xp: 1},"drill");

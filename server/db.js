@@ -176,8 +176,7 @@ function addXp(sessionId, context, type = "activeness") {
     }
 
     function buildActivenessContext(daysActive) {
-        console.log("daysActive", daysActive)
-        return {xp: daysActive}
+        return {xp: Math.floor(daysActive * 1.2)}
     }
 
     function buildProfileUpdate(profile) {
@@ -217,7 +216,6 @@ function addXp(sessionId, context, type = "activeness") {
             >= xpNextLevel(profile.attributes.workout_level))
             update.workout_level = profile.attributes.workout_level + 1;
         update.updated_at = new Date();
-        console.log("profile update", update)
         return update;
     }
 
