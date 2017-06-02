@@ -148,7 +148,17 @@ function getXps(sessionId) {
     return Profile.where({fb_id: sessionId}).fetch({withRelated: ['xplog']})
         .then(profile => profile.related('xplog').toJSON());
 }
-function addXp(sessionId, context, type = "knowledge") {
+function getDaysActive(sessionId) {
+    getXps(sessionId).then(log => {
+        for (let i = 0; i < log.length - 1; i++) {
+            let index = log.length - 1 - i;
+            let d = log[index - 1].created_at;
+            d.setDate(d.getDate() + 1);
+            if (log[index].created_at.getDate() != d) return i; //TODO TEST
+        }
+    }); //TODO calculate how many days in row
+}
+function addXp(sessionId, context, type = "activeness") {
     if (!sessionId) return Promise.reject(new Error("no sessionID"));
 
     let buildUpdate = (old, profile) => {
@@ -209,6 +219,10 @@ function addXp(sessionId, context, type = "knowledge") {
         return update;
     }
 
+    function buildActivenessContext(daysActive) {
+        return {xp: daysActive}
+    }
+
     return fetchProfile(sessionId, 'id').then(profile => { //TODO catch required ERROR with addProfile
         profile.save(buildProfileUpdate(profile))
             .then(profile => XpLog.where({profile_id: profile.id})
@@ -217,7 +231,10 @@ function addXp(sessionId, context, type = "knowledge") {
                 .then(xpLog => xpLog && xpLog.attributes.created_at.toDateString()
                 == new Date().toDateString() ?
                     xpLog.save(buildUpdate(xpLog, profile)) :
-                    XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save())
+                        XpLog.forge(buildNew(context, profile), {hasTimestamps: true}).save()
+                            .then(xp => getDaysActive(sessionId).then(days =>
+                                addXp(sessionId, buildActivenessContext(days), "activeness")))
+                )
                 .then(xp => console.log("added Xp", xp))
                 .catch(err => console.error("addXp", err))
             )
