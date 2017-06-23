@@ -239,6 +239,7 @@ function addXp(sessionId, context, type = "activeness") {
                 .catch(err => console.error("addXp", err))
             )
     })
+        .catch(err => console.error("buildProfileUpdate", err))
 
 }
 function xpNextLevel(level) {//TODO get from profileBuilder
