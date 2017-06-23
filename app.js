@@ -379,7 +379,7 @@ function buildApiAiRequestOptions (senderID) {
                 ]
             }))).catch(err => console.error(err));
 }
-function sendTextRequest(senderID, message) {
+function sendTextRequest(senderID, message, url = "") {
     buildApiAiRequestOptions(senderID)
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
