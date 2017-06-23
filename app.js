@@ -137,11 +137,15 @@ app.post('/xp', function (req, res) {
 
 function buildToken(userId = 0, duration) {
     let token = userId + new Date();
+    try {
     xpToken[token].userId = userId;
     xpToken[token].context = {
         xp: duration * 10
     };
     console.log("buildToken", token, xpToken[token]);
+    } catch (err) {
+        console.error("Error on buildToken", err);
+    }
     return token;
 }
 /*
