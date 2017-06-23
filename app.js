@@ -75,7 +75,7 @@ let sendMessagesToIDs = function (ids, messages, url) {
     console.log("send Messages to IDs", ids, messages);
     return new Promise((resolve, reject) => {
         ids.forEach(senderID => {
-            sendMessages(senderID, messages, 0, url, (id, err) => reject(err), resolve);
+            sendMessages(senderID, messages, null, url, (id, err) => reject(err), resolve);
         })
     })
 };
@@ -444,7 +444,7 @@ function sendApiAiRequest(request, senderID, url) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-            sendMessages(senderID, messages, response.result.parameters.duration, url);
+            sendMessages(senderID, messages, response, url);
         else sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
@@ -468,7 +468,8 @@ function sendSpeech(recipientId, messageText) {
 
     callSendAPI(messageData);
 }
-function sendMessages(senderID, messages, duration, url, reject = sendTextMessage, resolve) {
+function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
+    let duration = response.result.parameters.duration || 0;
     resolve = resolve || function (mes, id, messages) {
             return console.log(mes, id, messages)
         };
@@ -482,7 +483,7 @@ function sendMessages(senderID, messages, duration, url, reject = sendTextMessag
                 sendTextMessage(senderID, message.speech, callback, timeOut);
                 break;
             case 1:
-                sendGenericMessage(senderID, message, callback, timeOut, duration, url);
+                sendGenericMessage(senderID, message, callback, timeOut, response, url);
                 break;
             case 2:
                 sendQuickReply(senderID, message, callback, timeOut);
@@ -793,8 +794,11 @@ function sendButtonMessage(recipientId) {
  * Send a Structured Message (Generic Message type) using the Send API.
  *
  */
-function sendGenericMessage(recipientId, message, callback, timeOut, duration, url) {
+function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
+    let duration = response.result.parameters.duration || 0;
     let amount = duration ? duration.amount : 30;
+    let split = response.result.action.split(":");
+    let ratio = split[0] == "webview_height_ratio" ? split[1] : "compact";
 
     function buildXpData() {
         return "&token=" + buildToken(recipientId, amount)
@@ -827,11 +831,12 @@ function sendGenericMessage(recipientId, message, callback, timeOut, duration, u
                                 let url = btn.postback.replace("http://", "https://");
                                 if (url.startsWith("https://push2aim.github.io/webview/?duration="))
                                     url += buildXpData();
+
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
                                     url: url,
-                                    webview_height_ratio: "compact",
+                                    webview_height_ratio: ratio,
                                     messenger_extensions: true,
                                 });
                             }else if (btn.postback === "") {
