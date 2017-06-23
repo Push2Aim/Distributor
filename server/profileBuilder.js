@@ -102,6 +102,7 @@ function buildUserProfile(senderID) {
             xp_activeness: profile.xp_activeness,
         })
     })
+        .catch(err => console.error("buildUserProfile", err))
 }
 function xpNextLevel(level) {
     return Math.pow(5 * 1.2, level - 1);
