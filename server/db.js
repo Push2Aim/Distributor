@@ -20,7 +20,7 @@ let addValues = function (from, to, keys) {
     return to;
 };
 function getProfile(sessionId) {
-    let parseUserProfile = function (profile) {
+    let parseUserProfile = function (profile = {}) {
         let userProfile = parsProfile(profile.attributes)
         userProfile = addValues(profile.attributes, userProfile, ["created_at", "updated_at"]);
         userProfile.workouts = profile.related("workout").toJSON();
@@ -36,7 +36,7 @@ function getProfile(sessionId) {
 }
 function fetchProfile(sessionId, columns = '*') {
     return Profile.where({fb_id: sessionId})
-        .fetch({withRelated: ['workout', 'xplog'], columns: columns}) //TODO Add required
+        .fetch({withRelated: ['workout', 'xplog'], columns: columns}) //TODO Add require=true
         .catch(err => addProfile(sessionId));
 }
 function addProfile(sessionId, context) {
