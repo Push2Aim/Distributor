@@ -424,7 +424,7 @@ function takeAction(response) {
     }
 
     try {
-        if(response.result.action) {
+        if (response && response.result && response.result.action) {
             let actionSplit = response.result.action.toLowerCase().split("_");
             switch (actionSplit[0]) {
                 case "updateprofile":
