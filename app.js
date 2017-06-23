@@ -135,7 +135,7 @@ app.post('/xp', function (req, res) {
     res.send("ok");
 });
 
-function buildToken(userId, duration) {
+function buildToken(userId = 0, duration) {
     let token = userId + new Date();
     xpToken[token].userId = userId;
     xpToken[token].context = {
