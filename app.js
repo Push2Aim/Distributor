@@ -473,7 +473,6 @@ function sendSpeech(recipientId, messageText) {
     callSendAPI(messageData);
 }
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
-    let duration = response.result.parameters.duration || 0;
     resolve = resolve || function (mes, id, messages) {
             return console.log(mes, id, messages)
         };
@@ -799,7 +798,7 @@ function sendButtonMessage(recipientId) {
  *
  */
 function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
-    let duration = response.result.parameters.duration || 0;
+    let duration = response ? response.result.parameters.duration || 0 : 0;
     let amount = duration ? duration.amount : 30;
     let split = response.result.action.split(":");
     let ratio = split[0] == "webview_height_ratio" ? split[1] : "compact";
