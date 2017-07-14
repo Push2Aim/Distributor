@@ -949,10 +949,13 @@ function sendQuickReply(recipientId, message, callback, timeOut) {
         message: {
             text: message.title,
             quick_replies: message.replies.map(function (rep) {
+                let title = rep.split("http")[0];
+                let url = "http" + rep.split("http")[1];
                 return ({
                     "content_type": "text",
-                    "title": rep,
-                    "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION"
+                    "title": title,
+                    "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION",
+                    "image_url": url
                 });
             })
         }
