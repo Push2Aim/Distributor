@@ -956,7 +956,6 @@ function sendQuickReply(recipientId, message, callback, timeOut) {
                     "content_type": "text",
                     "title": title,
                     "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION",
-                    "image_url": url
                 });
             })
         }
