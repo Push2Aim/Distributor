@@ -949,8 +949,9 @@ function sendQuickReply(recipientId, message, callback, timeOut) {
         message: {
             text: message.title,
             quick_replies: message.replies.map(function (rep) {
-                let title = rep.split("http")[0];
-                let url = "http" + rep.split("http")[1];
+                let split = rep.split("http");
+                let title = split[0];
+                let url = split.length >= 2 ? "http" + split[1] : "";
                 return ({
                     "content_type": "text",
                     "title": title,
