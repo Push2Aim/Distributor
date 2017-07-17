@@ -550,14 +550,14 @@ function receivedPostback(event, url) {
 
     switch (payload) {
         case "PROFILE":
-            sendProfile(senderID);
+            sendProfile(senderID,payload,url);
             break;
         default:
             sendEventRequest(senderID, payload, url);
     }
 }
 
-function sendProfile(senderID) {
+function sendProfile(senderID, payload, url) {
     return userInfoRequest(senderID)
         .then((userInfo) => profileBuilder(senderID)
             .then(userProfile => ({
@@ -573,7 +573,10 @@ function sendProfile(senderID) {
             }))
         )
         .then(message => sendGenericMessage(senderID, message))
-        .catch(err => console.error(err))
+        .catch(err => {
+            sendEventRequest(senderID, payload, url);
+            return console.error(err);
+        })
 }
 /*
  * Message Read Event
