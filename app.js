@@ -563,6 +563,7 @@ function sendProfile(senderID, payload, url) {
             .then(userProfile => ({
                 title: "Your Profile",
                 subtitle: "share it now!",
+                webview_share_button: "hide",
                 buttons: [
                     {
                         text: "view Profile",
