@@ -1079,8 +1079,11 @@ function callSendAPI(messageData, callback, timeOut) {
     };
 
     function fromPicgen() {
-        return messageData.payload && messageData.payload.attachment.payload.url
-            && messageData.payload.attachment.payload.url.includes("picgen");
+        try {
+            return messageData.payload.attachment.payload.url.includes("picgen");
+        } catch (err) {
+            return false;
+        }
     }
 
     request(requestData, (error, response, body) => {
