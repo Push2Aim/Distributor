@@ -1055,12 +1055,26 @@ let takeABreak = function (senderID, callback, timeOut) {
     sendTypingOn(senderID);
     setTimeout(callback, timeOut);
 };
+
+let attachments = {};
+
+function minimizeAttachment(messageData) {
+    if (messageData.message.attachment) {
+        if (messageData.message.attachment) messageData.message.attachment.payload =
+            {
+                attachment_id: attachments[messageData.message.attachment]
+            };
+        else messageData.message.attachment.payload.is_reusable = true;
+    }
+    return messageData;
+}
+
 function callSendAPI(messageData, callback, timeOut) {
     let requestData = {
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: PAGE_ACCESS_TOKEN},
         method: 'POST',
-        json: messageData
+        json: minimizeAttachment(messageData)
     };
 
     request(requestData, (error, response, body) => {
@@ -1069,10 +1083,16 @@ function callSendAPI(messageData, callback, timeOut) {
         if (!error && response.statusCode == 200) {
             var recipientId = body.recipient_id;
             var messageId = body.message_id;
+            var attachmentId = body.attachment_id;
 
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
+                if(attachmentId){
+                    console.log("save attachment_id:", attachmentId);
+                    attachments[messageData] = attachmentId;
+                }
+
                 if (timeOut >= 0) {
                     let senderID = messageData.recipient.id;
                     takeABreak(senderID, callback, timeOut);
@@ -1102,6 +1122,3 @@ app.listen(app.get('port'), function () {
 });
 
 module.exports = app;
-
-// db.addProfile(5)
-db.addXp(5, {xp: 1},"drill");
