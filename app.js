@@ -1060,7 +1060,8 @@ let attachments = {};
 
 function minimizeAttachment(messageData) {
     if (messageData.message && messageData.message.attachment) {
-        if (messageData.message.attachment) messageData.message.attachment.payload =
+        if (messageData.message.attachment && attachments[messageData.message.attachment])
+            messageData.message.attachment.payload =
             {
                 attachment_id: attachments[messageData.message.attachment]
             };
