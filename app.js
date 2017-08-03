@@ -1080,7 +1080,7 @@ function callSendAPI(messageData, callback, timeOut) {
 
     function fromPicgen() {
         try {
-            return messageData.payload.attachment.payload.url.includes("picgen");
+            return messageData.message.attachment.payload.url.includes("picgen");
         } catch (err) {
             return false;
         }
