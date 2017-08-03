@@ -1063,7 +1063,7 @@ function minimizeAttachment(messageData) {
         if (messageData.message.attachment && attachments[messageData.message.attachment])
             messageData.message.attachment.payload =
             {
-                attachment_id: attachments[messageData.message.attachment]
+                attachment_id: attachments[JSON.stringify(messageData.message.attachment)]
             };
         else messageData.message.attachment.payload.is_reusable = true;
     }
@@ -1080,6 +1080,7 @@ function callSendAPI(messageData, callback, timeOut) {
 
     function fromPicgen() {
         try {
+            console.log("fromPicgen url:",messageData.message.attachment.payload.url);
             return messageData.message.attachment.payload.url.includes("picgen");
         } catch (err) {
             return false;
@@ -1099,7 +1100,7 @@ function callSendAPI(messageData, callback, timeOut) {
                     messageId, recipientId);
                 if(attachmentId && !fromPicgen()){
                     console.log("save attachment_id:", attachmentId);
-                    attachments[messageData] = attachmentId;
+                    attachments[JSON.stringify(messageData)] = attachmentId;
                 }
 
                 if (timeOut >= 0) {
