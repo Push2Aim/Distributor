@@ -1089,7 +1089,7 @@ function callSendAPI(messageData, callback, timeOut) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
-                if(attachmentId){
+                if(attachmentId && !messageData.payload.attachment.payload.url.includes("picgen")){
                     console.log("save attachment_id:", attachmentId);
                     attachments[messageData] = attachmentId;
                 }
