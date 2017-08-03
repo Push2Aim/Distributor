@@ -651,7 +651,7 @@ function sendCustomPayload(recipientId, payload, callback, timeOut) {
             attachment: payload.attachment
         }
     };
-
+    console.log("sendCustomPayload:", JSON.stringify(payload));
     callSendAPI(messageData, callback, timeOut);
 }
 /*
