@@ -1059,6 +1059,7 @@ let takeABreak = function (senderID, callback, timeOut) {
 let attachments = {};
 
 function minimizeAttachment(messageData) {
+    console.log("minimizeAttachment:", JSON.stringify(messageData));
     if (messageData.message.attachment) {
         if (messageData.message.attachment) messageData.message.attachment.payload =
             {
