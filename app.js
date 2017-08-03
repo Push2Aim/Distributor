@@ -1059,7 +1059,7 @@ let takeABreak = function (senderID, callback, timeOut) {
 let attachments = {};
 
 function minimizeAttachment(messageData) {
-    if (messageData.message && messageData.message.attachment) {
+    if (messageData.message && messageData.message.attachment && messageData.message.attachment.type !== "template") {
         if (messageData.message.attachment && attachments[messageData.message.attachment])
             messageData.message.attachment.payload =
             {
@@ -1067,7 +1067,6 @@ function minimizeAttachment(messageData) {
             };
         else messageData.message.attachment.payload.is_reusable = true;
     }
-    console.log("minimizeAttachment out:", JSON.stringify(messageData));
     return messageData;
 }
 
