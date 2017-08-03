@@ -1078,6 +1078,11 @@ function callSendAPI(messageData, callback, timeOut) {
         json: minimizeAttachment(messageData)
     };
 
+    function fromPicgen() {
+        return messageData.payload && messageData.payload.attachment.payload.url
+            && messageData.payload.attachment.payload.url.includes("picgen");
+    }
+
     request(requestData, (error, response, body) => {
         dashbot.logOutgoing(requestData, response.body);
 
@@ -1089,7 +1094,7 @@ function callSendAPI(messageData, callback, timeOut) {
             if (messageId) {
                 console.log("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
-                if(attachmentId && !messageData.payload.attachment.payload.url.includes("picgen")){
+                if(attachmentId && !fromPicgen()){
                     console.log("save attachment_id:", attachmentId);
                     attachments[messageData] = attachmentId;
                 }
