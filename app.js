@@ -465,6 +465,8 @@ function takeAction(response) {
                     return addProfile(response);
                 case "xp":
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
+                case "notify":
+                    return sendTextMessage(actionSplit[1], response.sessionId);
             }
         }
     } catch (err) {
