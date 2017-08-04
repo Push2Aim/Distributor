@@ -455,6 +455,16 @@ function takeAction(response) {
         db.addXp(sessionId, {xp: amount}, type)
     }
 
+    function notify(recipientId) {
+        return userInfoRequest(response.sessionId)
+            .then((userInfo) =>
+                sendTextMessage(recipientId, userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy"))
+            .catch(err => {
+                console.error(err);
+                return sendTextMessage(recipientId, response.sessionId + " requested you in HebBuddy");
+            });
+    }
+
     try {
         if (response && response.result && response.result.action) {
             let actionSplit = response.result.action.toLowerCase().split("_");
@@ -466,7 +476,7 @@ function takeAction(response) {
                 case "xp":
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
-                    return sendTextMessage(actionSplit[1], response.sessionId);
+                    return notify(actionSplit[1]);
             }
         }
     } catch (err) {
