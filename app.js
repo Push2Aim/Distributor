@@ -57,19 +57,23 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 
 wakeUp(process.env.ADDRESSES.split(","));
 function wakeUp(addresses) {
-    addresses.map((uri) => {
-        request({
-                method: 'GET',
-                uri: uri
-            },
-            function (error, response) {
-                if (error) {
-                    console.error('Error while userInfoRequest: ', error);
-                } else {
-                    console.log(uri+' result: ', response.body);
-                }
-            });
-    });
+    try {
+        addresses.map((uri) => {
+            request({
+                    method: 'GET',
+                    uri: uri
+                },
+                function (error, response) {
+                    if (error) {
+                        console.error('Error while userInfoRequest: ', error);
+                    } else {
+                        console.log(uri + ' result: ', response.body);
+                    }
+                });
+        });
+    } catch (err) {
+        console.error("caught Error at wakeUp(%s):", addresses, err);
+    }
 }
 let sendMessagesToIDs = function (ids, messages, url) {
     console.log("send Messages to IDs", ids, messages);
@@ -88,51 +92,67 @@ let isValidatedRequest = function (req, res) {
     return true;
 };
 app.post('/subscription', function (req, res) {
-    console.log("/subscripiton", req.body);
-    if (!isValidatedRequest(req, res)) return;
+    try {
+        console.log("/subscripiton", req.body);
+        if (!isValidatedRequest(req, res)) return;
 
-    let messages = req.body.messages;
-    let selectors = req.body.selectors;
-    db.getAllIDs(selectors)
-        .then(ids => sendMessagesToIDs(ids, messages, req.headers.host))
-        .then(ids => res.json({recipients: ids, success: true}))
-        .catch(err => res.status(500).json({ error: err }));
+        let messages = req.body.messages;
+        let selectors = req.body.selectors;
+        db.getAllIDs(selectors)
+            .then(ids => sendMessagesToIDs(ids, messages, req.headers.host))
+            .then(ids => res.json({recipients: ids, success: true}))
+            .catch(err => res.status(500).json({error: err}));
+    } catch (err) {
+        console.error("caught Error at /subscription with req: %s; res: %s :", req.body, res, err);
+    }
 });
 
 app.post('/send', function (req, res) {
-    console.log("/send", req.body);
-    if (!isValidatedRequest(req, res)) return;
+    try {
+        console.log("/send", req.body);
+        if (!isValidatedRequest(req, res)) return;
 
-    let messages = req.body.messages;
-    let recipients = req.body.recipients;
-    sendMessagesToIDs(recipients, messages, req.headers.host)
-        .then(ids => res.json({recipients: ids, success: true}))
-        .catch((err) => {
-            console.error("Error on /send", err);
-            res.status(500).json({error: err})
-        });
+        let messages = req.body.messages;
+        let recipients = req.body.recipients;
+        sendMessagesToIDs(recipients, messages, req.headers.host)
+            .then(ids => res.json({recipients: ids, success: true}))
+            .catch((err) => {
+                console.error("Error on /send", err);
+                res.status(500).json({error: err})
+            });
+    } catch (err) {
+        console.error("caught Error at /send with req: %s; res: %s :", req.body, res, err);
+    }
 });
 
 let pausedUsers = {};
 app.post('/pause', function (req, res) {
-    const userId = req.body.userId;
-    const paused = req.body.paused;
-    pausedUsers[userId] = paused;
-    console.log(userId, paused, pausedUsers);
-    res.send("ok");
+    try {
+        const userId = req.body.userId;
+        const paused = req.body.paused;
+        pausedUsers[userId] = paused;
+        console.log(userId, paused, pausedUsers);
+        res.send("ok");
+    } catch (err) {
+        console.error("caught Error at /pause with req: %s; res: %s :", req.body, res, err);
+    }
 });
 
 let xpToken = {};
 app.post('/xp', function (req, res) {
-    let data = xpToken[req.body.token];
-    console.log("/xp", req.body.token, data);
-    db.addXp(data.userId, data.context, req.body.type || "drill")
-        .then(xp => res.json({success: true}))
-        .catch((err) => {
-            console.error("Error on /xp", err);
-            res.status(500).json({error: err})
-        });
-    res.send("ok");
+    try {
+        let data = xpToken[req.body.token];
+        console.log("/xp", req.body.token, data);
+        db.addXp(data.userId, data.context, req.body.type || "drill")
+            .then(xp => res.json({success: true}))
+            .catch((err) => {
+                console.error("Error on /xp", err);
+                res.status(500).json({error: err})
+            });
+        res.send("ok");
+    } catch (err) {
+        console.error("caught Error at /xp with req: %s; res: %s :", req.body, res, err);
+    }
 });
 
 function buildToken(userId = 0, duration) {
@@ -156,13 +176,17 @@ function buildToken(userId = 0, duration) {
 
 
 app.get('/webhook', function (req, res) {
-    if (req.query['hub.mode'] === 'subscribe' &&
-        req.query['hub.verify_token'] === VALIDATION_TOKEN) {
-        console.log("Validating webhook");
-        res.status(200).send(req.query['hub.challenge']);
-    } else {
-        console.error("Failed validation. Make sure the validation tokens match.");
-        res.sendStatus(403);
+    try {
+        if (req.query['hub.mode'] === 'subscribe' &&
+            req.query['hub.verify_token'] === VALIDATION_TOKEN) {
+            console.log("Validating webhook");
+            res.status(200).send(req.query['hub.challenge']);
+        } else {
+            console.error("Failed validation. Make sure the validation tokens match.");
+            res.sendStatus(403);
+        }
+    } catch (err) {
+        console.error("caught Error at /webhook with req: %s; res: %s :", req.body, res, err);
     }
 });
 /*
@@ -174,43 +198,47 @@ app.get('/webhook', function (req, res) {
  */
 
 app.post('/webhook', function (req, res) {
-    dashbot.logIncoming(req.body);
+    try {
+        dashbot.logIncoming(req.body);
 
-    var data = req.body;
+        var data = req.body;
 
-    // Make sure this is a page subscription
-    if (data.object == 'page') {
-        // Iterate over each entry
-        // There may be multiple if batched
-        data.entry.forEach(function (pageEntry) {
-            var pageID = pageEntry.id;
-            var timeOfEvent = pageEntry.time;
+        // Make sure this is a page subscription
+        if (data.object == 'page') {
+            // Iterate over each entry
+            // There may be multiple if batched
+            data.entry.forEach(function (pageEntry) {
+                var pageID = pageEntry.id;
+                var timeOfEvent = pageEntry.time;
 
-            // Iterate over each messaging event
-            pageEntry.messaging.forEach(function (messagingEvent) {
-                if (messagingEvent.optin) {
-                    receivedAuthentication(messagingEvent);
-                } else if (messagingEvent.postback) {
-                    receivedPostback(messagingEvent, req.headers.host);
-                } else if (messagingEvent.message) {
-                    receivedMessage(messagingEvent);
-                } else if (messagingEvent.delivery) {
-                    receivedDeliveryConfirmation(messagingEvent);
-                } else if (messagingEvent.read) {
-                    receivedMessageRead(messagingEvent);
-                } else if (messagingEvent.account_linking) {
-                    receivedAccountLink(messagingEvent);
-                } else {
-                    console.log("Webhook received unknown messagingEvent: ", messagingEvent);
-                }
+                // Iterate over each messaging event
+                pageEntry.messaging.forEach(function (messagingEvent) {
+                    if (messagingEvent.optin) {
+                        receivedAuthentication(messagingEvent);
+                    } else if (messagingEvent.postback) {
+                        receivedPostback(messagingEvent, req.headers.host);
+                    } else if (messagingEvent.message) {
+                        receivedMessage(messagingEvent);
+                    } else if (messagingEvent.delivery) {
+                        receivedDeliveryConfirmation(messagingEvent);
+                    } else if (messagingEvent.read) {
+                        receivedMessageRead(messagingEvent);
+                    } else if (messagingEvent.account_linking) {
+                        receivedAccountLink(messagingEvent);
+                    } else {
+                        console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+                    }
+                });
             });
-        });
 
-        // Assume all went well.
-        //
-        // You must send back a 200, within 20 seconds, to let us know you've
-        // successfully received the callback. Otherwise, the request will time out.
-        res.sendStatus(200);
+            // Assume all went well.
+            //
+            // You must send back a 200, within 20 seconds, to let us know you've
+            // successfully received the callback. Otherwise, the request will time out.
+            res.sendStatus(200);
+        }
+    } catch (err) {
+        console.error("caught Error at /webhook with req: %s; res: %s :", req.body, res, err);
     }
 });
 /*
@@ -220,21 +248,25 @@ app.post('/webhook', function (req, res) {
  */
 
 app.get('/authorize', function (req, res) {
-    var accountLinkingToken = req.query.account_linking_token;
-    var redirectURI = req.query.redirect_uri;
+    try {
+        var accountLinkingToken = req.query.account_linking_token;
+        var redirectURI = req.query.redirect_uri;
 
-    // Authorization Code should be generated per user by the developer. This will
-    // be passed to the Account Linking callback.
-    var authCode = "1234567890";
+        // Authorization Code should be generated per user by the developer. This will
+        // be passed to the Account Linking callback.
+        var authCode = "1234567890";
 
-    // Redirect users to this URI on successful login
-    var redirectURISuccess = redirectURI + "&authorization_code=" + authCode;
+        // Redirect users to this URI on successful login
+        var redirectURISuccess = redirectURI + "&authorization_code=" + authCode;
 
-    res.render('authorize', {
-        accountLinkingToken: accountLinkingToken,
-        redirectURI: redirectURI,
-        redirectURISuccess: redirectURISuccess
-    });
+        res.render('authorize', {
+            accountLinkingToken: accountLinkingToken,
+            redirectURI: redirectURI,
+            redirectURISuccess: redirectURISuccess
+        });
+    } catch (err) {
+        console.error("caught Error at /authorize with req: %s; res: %s :", req.body, res, err);
+    }
 });
 /*
  * Verify that the callback came from Facebook. Using the App Secret from 
