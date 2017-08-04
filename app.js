@@ -473,7 +473,7 @@ function takeAction(response) {
             }
         }
     } catch (err) {
-        console.error("caught Error:", err);
+        console.error("caught Error on takeAction(%s):", JSON.stringify(response), err);
     }
 }
 function sendApiAiRequest(request, senderID, url) {
@@ -481,7 +481,7 @@ function sendApiAiRequest(request, senderID, url) {
 
     request.on('response', function (response) {
         console.log("ApiAi Response: ", JSON.stringify(response));
-        takeAction(response.result.action);
+        takeAction(response);
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
