@@ -461,7 +461,7 @@ function takeAction(response) {
                 sendTextMessage(recipientId, userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy"))
             .catch(err => {
                 console.error(err);
-                return sendTextMessage(recipientId, response.sessionId + " requested you in HebBuddy");
+                return sendTextMessage(recipientId, response.sessionId + " requested you in HeyBuddy");
             });
     }
 
