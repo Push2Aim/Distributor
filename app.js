@@ -455,11 +455,9 @@ function takeAction(response) {
         db.addXp(sessionId, {xp: amount}, type)
     }
 
-    console.log("takeAction(%s)", JSON.stringify(response));
     try {
         if (response && response.result && response.result.action) {
             let actionSplit = response.result.action.toLowerCase().split("_");
-            console.log("action: s%; actionSplit: s%", response.result.action, actionSplit);
             switch (actionSplit[0]) {
                 case "updateprofile":
                     return updateProfile(response);
@@ -468,7 +466,6 @@ function takeAction(response) {
                 case "xp":
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
-                    console.log("takeAction notify from %s:", response.sessionId, actionSplit);
                     return sendTextMessage(actionSplit[1], response.sessionId);
             }
         }
