@@ -126,12 +126,15 @@ app.post('/send', function (req, res) {
 });
 
 let pausedUsers = {};
+
+function pauseUser(userId, paused) {
+    pausedUsers[userId] = paused;
+    console.log(userId, paused, pausedUsers);
+}
+
 app.post('/pause', function (req, res) {
     try {
-        const userId = req.body.userId;
-        const paused = req.body.paused;
-        pausedUsers[userId] = paused;
-        console.log(userId, paused, pausedUsers);
+        pauseUser(req.body.userId, req.body.paused);
         res.send("ok");
     } catch (err) {
         console.error("caught Error at /pause with req: %s; res: %s :", req.body, res, err);
@@ -509,6 +512,10 @@ function takeAction(response) {
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
                     return notify(actionSplit[1]);
+                case "stop":
+                    return pauseUser(actionSplit[1],true);
+                case "start":
+                    return pauseUser(actionSplit[1],false);
             }
         }
     } catch (err) {
