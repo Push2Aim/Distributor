@@ -495,16 +495,8 @@ function takeAction(response) {
 
 function notify(recipientId) {
     function sendMessage(recipientId, message) {
-        callSendAPI({
-            recipient: {
-                id: recipientId
-            },
-            message: {
-                text: message.title,
-                quick_replies: message.replies.map((rep) =>
-                    mapQickReplies(rep.title, rep.payload))
-            }
-        });
+        sendQuickReply(recipientId, message, null, -1,
+            rep => mapQickReplies(rep.title, rep.payload));
     }
 
     function makeMessage(title) {
@@ -1040,15 +1032,15 @@ function sendReceiptMessage(recipientId) {
  * Send a message with Quick Reply buttons.
  *
  */
-function sendQuickReply(recipientId, message, callback, timeOut) {
+function sendQuickReply(recipientId, message, callback, timeOut,
+                        map = title => mapQickReplies(title)) {
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
             text: message.title,
-            quick_replies: message.replies.map(title =>
-                mapQickReplies(title))
+            quick_replies: message.replies.map(map)
         }
     };
 
