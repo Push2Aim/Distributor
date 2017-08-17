@@ -495,7 +495,7 @@ function takeAction(response) {
 
 function notify(recipientId) {
     function sendMessage(recipientId, message) {
-        sendQuickReply(recipientId, message, null, -1,
+        sendQuickReply(recipientId, message,
             rep => mapQickReplies(rep.title, rep.payload));
     }
 
@@ -576,7 +576,7 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
                 sendGenericMessage(senderID, message, callback, timeOut, response, url);
                 break;
             case 2:
-                sendQuickReply(senderID, message, callback, timeOut);
+                sendQuickReply(senderID, message, mapQickReplies, callback, timeOut);
                 break;
             case 3:
                 sendImageMessage(senderID, message.imageUrl, callback, timeOut);
@@ -1032,8 +1032,7 @@ function sendReceiptMessage(recipientId) {
  * Send a message with Quick Reply buttons.
  *
  */
-function sendQuickReply(recipientId, message, callback, timeOut,
-                        map = title => mapQickReplies(title)) {
+function sendQuickReply(recipientId, message, map = mapQickReplies, callback = null, timeOut = -1) {
     var messageData = {
         recipient: {
             id: recipientId
