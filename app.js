@@ -337,9 +337,9 @@ function makeQuickReply(payload) {
         if (payload) {
             let actionSplit = payload.toLowerCase().split("_");
             switch (actionSplit[0]) {
-                case "stop":
+                case "pause":
                     return pauseUser(actionSplit[1], true);
-                case "start":
+                case "continue":
                     return pauseUser(actionSplit[1], false);
             }
         }
@@ -493,12 +493,12 @@ function takeAction(response) {
             title: title,
             quick_replies: [
                 {
-                    title: "Stop",
-                    payload: "STOP_" + response.sessionId
+                    title: "Pause",
+                    payload: "PAUSE_" + response.sessionId
                 },
                 {
-                    title: "Start",
-                    payload: "START_" + response.sessionId
+                    title: "Continue",
+                    payload: "CONTINUE_" + response.sessionId
                 }
             ]
         };
