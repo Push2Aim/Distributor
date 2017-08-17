@@ -332,6 +332,22 @@ function receivedAuthentication(event) {
     sendTextMessage(senderID, "Authentication successful");
 }
 
+function makeQuickReply(payload) {
+    try {
+        if (payload) {
+            let actionSplit = payload.toLowerCase().split("_");
+            switch (actionSplit[0]) {
+                case "stop":
+                    return pauseUser(actionSplit[1], true);
+                case "start":
+                    return pauseUser(actionSplit[1], false);
+            }
+        }
+    } catch (err) {
+        console.error("caught Error on takeAction(%s):", JSON.stringify(payload), err);
+    }
+}
+
 /*
  * Message Event
  *
@@ -376,7 +392,7 @@ function receivedMessage(event) {
         var quickReplyPayload = quickReply.payload;
         console.log("Quick reply for message %s with payload %s",
             messageId, quickReplyPayload);
-
+        makeQuickReply(quickReplyPayload);
         sendTextRequest(senderID, messageText);
     }
     else if (messageText) {
@@ -512,10 +528,6 @@ function takeAction(response) {
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
                     return notify(actionSplit[1]);
-                case "stop":
-                    return pauseUser(actionSplit[1],true);
-                case "start":
-                    return pauseUser(actionSplit[1],false);
             }
         }
     } catch (err) {
