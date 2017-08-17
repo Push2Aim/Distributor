@@ -495,23 +495,22 @@ function takeAction(response) {
 
 function notify(recipientId) {
     function sendMessage(recipientId, message) {
-        var messageData = {
+        callSendAPI({
             recipient: {
                 id: recipientId
             },
             message: {
                 text: message.title,
-                quick_replies: message.quick_replies.map((rep) =>
+                quick_replies: message.replies.map((rep) =>
                     mapQickReplies(rep.title, rep.payload))
             }
-        };
-        callSendAPI(messageData);
+        });
     }
 
     function makeMessage(title) {
         return {
             title: title,
-            quick_replies: [
+            replies: [
                 {
                     title: "Pause",
                     payload: "PAUSE_" + response.sessionId
