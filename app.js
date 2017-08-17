@@ -501,7 +501,7 @@ function notify(recipientId) {
             },
             message: {
                 text: message.title,
-                quick_replies: message.replies.map((rep) =>
+                quick_replies: message.quick_replies.map((rep) =>
                     mapQickReplies(rep.title, rep.payload))
             }
         };
@@ -524,15 +524,15 @@ function notify(recipientId) {
         };
     }
 
-        return userInfoRequest(response.sessionId)
-            .then((userInfo) =>
-                sendMessage(recipientId,
-                    makeMessage(userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy")))
-            .catch(err => {
-                console.error(err);
-                return sendMessage(recipientId,
-                    makeMessage(response.sessionId + " requested you in HeyBuddy"));
-            });
+    return userInfoRequest(response.sessionId)
+        .then((userInfo) =>
+            sendMessage(recipientId,
+                makeMessage(userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy")))
+        .catch(err => {
+            console.error(err);
+            return sendMessage(recipientId,
+                makeMessage(response.sessionId + " requested you in HeyBuddy"));
+        });
     }
 
 function sendApiAiRequest(request, senderID, url) {
