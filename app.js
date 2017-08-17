@@ -455,13 +455,45 @@ function takeAction(response) {
         db.addXp(sessionId, {xp: amount}, type)
     }
 
+    function sendMessage(recipientId, message) {
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            message: {
+                text: message.title,
+                quick_replies: message.replies.map((rep) =>
+                    mapQickReplies(rep.title, rep.payload))
+            }
+        };
+        callSendAPI(messageData);
+    }
+
+    function makeMessage(title) {
+        return {
+            title: title,
+            quick_replies: [
+                {
+                    title: "Stop",
+                    payload: "STOP_" + response.sessionId
+                },
+                {
+                    title: "Start",
+                    payload: "START_" + response.sessionId
+                }
+            ]
+        };
+    }
+
     function notify(recipientId) {
         return userInfoRequest(response.sessionId)
             .then((userInfo) =>
-                sendTextMessage(recipientId, userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy"))
+                sendMessage(recipientId,
+                    makeMessage(userInfo.first_name + " " + userInfo.last_name + " requested you in HebBuddy")))
             .catch(err => {
                 console.error(err);
-                return sendTextMessage(recipientId, response.sessionId + " requested you in HeyBuddy");
+                return sendMessage(recipientId,
+                    makeMessage(response.sessionId + " requested you in HeyBuddy"));
             });
     }
 
@@ -996,20 +1028,22 @@ function sendQuickReply(recipientId, message, callback, timeOut) {
         },
         message: {
             text: message.title,
-            quick_replies: message.replies.map(function (rep) {
-                let split = rep.split("http");
-                let title = split[0];
-                let url = split.length >= 2 ? "http" + split[1] : "";
-                return ({
-                    "content_type": "text",
-                    "title": title,
-                    "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION",
-                });
-            })
+            quick_replies: message.replies.map(title =>
+                mapQickReplies(title))
         }
     };
 
     callSendAPI(messageData, callback, timeOut);
+}
+
+function mapQickReplies(title, payload = "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION") {
+    let split = title.split("http");
+    let url = split.length >= 2 ? "http" + split[1] : "";
+    return ({
+        "content_type": "text",
+        "title": split[0],
+        "payload": payload,
+    });
 }
 
 /*
