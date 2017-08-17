@@ -344,7 +344,7 @@ function makeQuickReply(payload) {
             }
         }
     } catch (err) {
-        console.error("caught Error on takeAction(%s):", JSON.stringify(payload), err);
+        console.error("caught Error on makeQuickReply(%s):", JSON.stringify(payload), err);
     }
 }
 
