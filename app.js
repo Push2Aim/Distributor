@@ -474,6 +474,26 @@ function takeAction(response) {
         db.addXp(sessionId, {xp: amount}, type)
     }
 
+    try {
+        if (response && response.result && response.result.action) {
+            let actionSplit = response.result.action.toLowerCase().split("_");
+            switch (actionSplit[0]) {
+                case "updateprofile":
+                    return updateProfile(response);
+                case "addprofile":
+                    return addProfile(response);
+                case "xp":
+                    return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
+                case "notify":
+                    return notify(actionSplit[1]);
+            }
+        }
+    } catch (err) {
+        console.error("caught Error on takeAction(%s):", JSON.stringify(response), err);
+    }
+}
+
+function notify(recipientId) {
     function sendMessage(recipientId, message) {
         var messageData = {
             recipient: {
@@ -504,7 +524,6 @@ function takeAction(response) {
         };
     }
 
-    function notify(recipientId) {
         return userInfoRequest(response.sessionId)
             .then((userInfo) =>
                 sendMessage(recipientId,
@@ -516,24 +535,6 @@ function takeAction(response) {
             });
     }
 
-    try {
-        if (response && response.result && response.result.action) {
-            let actionSplit = response.result.action.toLowerCase().split("_");
-            switch (actionSplit[0]) {
-                case "updateprofile":
-                    return updateProfile(response);
-                case "addprofile":
-                    return addProfile(response);
-                case "xp":
-                    return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
-                case "notify":
-                    return notify(actionSplit[1]);
-            }
-        }
-    } catch (err) {
-        console.error("caught Error on takeAction(%s):", JSON.stringify(response), err);
-    }
-}
 function sendApiAiRequest(request, senderID, url) {
     sendTypingOn(senderID);
 
