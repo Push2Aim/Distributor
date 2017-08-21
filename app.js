@@ -486,10 +486,6 @@ function takeAction(response) {
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
                     return notify(actionSplit[1], response);
-                case "pause":
-                    return pauseUser(actionSplit[1], true);
-                case "resume":
-                    return pauseUser(actionSplit[1], false);
             }
         }
     } catch (err) {
@@ -638,12 +634,23 @@ function receivedPostback(event, url) {
     console.log("Received postback for user %d and page %d with payload '%s' " +
         "at %d", senderID, recipientID, payload, timeOfPostback);
 
-    switch (payload) {
-        case "PROFILE":
-            sendProfile(senderID,payload,url);
-            break;
-        default:
-            sendEventRequest(senderID, payload, url);
+    try {
+        if (payload) {
+            let actionSplit = payload.toUpperCase().split("_");
+            switch (actionSplit[0]) {
+                case "PROFILE":
+                    return sendProfile(senderID, payload, url);
+                case "PAUSE":
+                    return pauseUser(actionSplit[1], true);
+                case "RESUME":
+                    return pauseUser(actionSplit[1], false);
+                default:
+                    sendEventRequest(senderID, payload, url);
+            }
+        }
+    } catch (err) {
+        console.error("caught Error on receivedPostback(%s, %s):",
+            JSON.stringify(event), JSON.stringify(url), err);
     }
 }
 
