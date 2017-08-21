@@ -499,21 +499,20 @@ function takeAction(response) {
 
 function notify(recipientId, response) {
     function sendMessage(recipientId, message) {
-        sendQuickReply(recipientId, message,
-            rep => mapQickReplies(rep.title, rep.payload));
+        sendGenericMessage(recipientId, message);
     }
 
     function makeMessage(title) {
         return {
             title: title,
-            replies: [
+            buttons: [
                 {
-                    title: "Pause",
+                    text: "Pause",
                     payload: "PAUSE_" + response.sessionId
                 },
                 {
-                    title: "Continue",
-                    payload: "CONTINUE_" + response.sessionId
+                    text: "Resume",
+                    payload: "RESUME_" + response.sessionId
                 }
             ]
         };
