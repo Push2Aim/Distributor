@@ -486,6 +486,10 @@ function takeAction(response) {
                     return addXP(response.sessionId, actionSplit[1], actionSplit[2]);
                 case "notify":
                     return notify(actionSplit[1], response);
+                case "pause":
+                    return pauseUser(actionSplit[1], true);
+                case "resume":
+                    return pauseUser(actionSplit[1], false);
             }
         }
     } catch (err) {
