@@ -1,3 +1,9 @@
+module.exports = {
+    sendMessages: sendMessages,
+    sendTypingOn: sendTypingOn,
+    sendSpeech: sendSpeech,
+};
+
 const
     request = require('request'),
     async = require('async');
@@ -12,9 +18,6 @@ function loadEnvironmentVariables() {
 // Generate a page access token for your page from the App Dashboard
 const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN);
 
-
-
-module.exports.sendMessages = sendMessages;
 
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
     resolve = resolve || function (mes, id, messages) {
@@ -49,8 +52,6 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
 }
 
 
-module.exports.sendTypingOn = sendTypingOn;
-
 /*
  * Turn typing indicator on
  *
@@ -67,8 +68,6 @@ function sendTypingOn(recipientId) {
 
     callSendAPI(messageData);
 }
-
-module.exports.sendSpeech = sendSpeech;
 
 function sendSpeech(recipientId, messageText) {
     let messageData = {
