@@ -804,23 +804,6 @@ function sendTypingOn(recipientId) {
 }
 
 /*
- * Turn typing indicator off
- *
- */
-function sendTypingOff(recipientId) {
-    console.log("Turning typing indicator off");
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        sender_action: "typing_off"
-    };
-
-    callSendAPI(messageData);
-}
-
-/*
  * Send a message with the account linking call-to-action
  *
  */
