@@ -687,27 +687,8 @@ function receivedAccountLink(event) {
         "and auth code %s ", senderID, status, authCode);
 }
 
-/*
- * Turn typing indicator on
- *
- */
-function sendTypingOn(recipientId) {
-    console.log("Turning typing indicator on");
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        sender_action: "typing_on"
-    };
-
-    callSendAPI(messageData);
-}
-
-
-
-let takeABreak = function (senderID, callback, timeOut) {
-    sendTypingOn(senderID);
+let takeABreak = function (senderID, callback, timeOut, ui = facebook) {
+    ui.sendTypingOn(senderID);
     setTimeout(callback, timeOut);
 };
 
