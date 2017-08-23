@@ -178,7 +178,7 @@ app.post('/alexa', function (req, res) {
         console.log("/alexa:", JSON.stringify(req.body));
         let event = req.body;
         let context = event.context;
-        let callback = s => res.sendStatus(200).send(s);
+        let callback = s => console.log("callback:",s);
         Alexa.handler(event, context, callback)
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
