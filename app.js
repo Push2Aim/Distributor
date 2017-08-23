@@ -327,7 +327,7 @@ function verifyRequestSignature(req, res, buf) {
  *
  */
 
-function receivedAuthentication(event) {
+function receivedAuthentication(event, ui = facebook) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
     var timeOfAuth = event.timestamp;
@@ -345,7 +345,7 @@ function receivedAuthentication(event) {
 
     // When an authentication is received, we'll send a message back to the sender
     // to let them know it was successful.
-    sendTextMessage(senderID, "Authentication successful");
+    ui.sendTextMessage(senderID, "Authentication successful");
 }
 
 function makeQuickReply(payload) {
@@ -556,7 +556,7 @@ function sendApiAiRequest(request, senderID, url, ui = facebook) {
 
     request.on('error', function (error) {
         console.error("Error on sendApiAiRequest", error);
-        sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+        ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
 }
@@ -685,25 +685,6 @@ function receivedAccountLink(event) {
 
     console.log("Received account link event with for user %d with status %s " +
         "and auth code %s ", senderID, status, authCode);
-}
-
-/*
- * Send a text message using the Send API.
- *
- */
-function sendTextMessage(recipientId, messageText, callback, timeOut) {
-    messageText = messageText.split(" action: ")[0];
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            text: messageText,
-            metadata: "DEVELOPER_DEFINED_METADATA"
-        }
-    };
-
-    callSendAPI(messageData, callback, timeOut);
 }
 
 /*

@@ -2,6 +2,7 @@ module.exports = {
     sendMessages: sendMessages,
     sendTypingOn: sendTypingOn,
     sendSpeech: sendSpeech,
+    sendTextMessage: sendTextMessage,
 };
 
 const
