@@ -172,7 +172,7 @@ function buildToken(userId = 0, duration) {
     return token;
 }
 
-import Alexa from "./server/alexa";
+const Alexa = require("./server/alexa");
 app.post('/alexa', function (req, res) {
     try {
         console.log("/alexa:", JSON.stringify(req.body));
