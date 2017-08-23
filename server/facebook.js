@@ -336,3 +336,30 @@ function sendCustomPayload(recipientId, payload, callback, timeOut) {
 
     callSendAPI(messageData, callback, timeOut);
 }
+
+/*
+ * Send a message with the account linking call-to-action
+ *
+ */
+function sendAccountLinking(recipientId) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "Welcome. Link your account.",
+                    buttons: [{
+                        type: "account_link",
+                        url: SERVER_URL + "/authorize"
+                    }]
+                }
+            }
+        }
+    };
+
+    callSendAPI(messageData);
+}
