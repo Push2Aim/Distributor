@@ -173,14 +173,14 @@ function buildToken(userId = 0, duration) {
     return token;
 }
 
-const Alexa = require("./server/alexa");
+const alexa = require("./server/alexa");
 app.post('/alexa', function (req, res) {
     try {
-        console.log("/alexa:", JSON.stringify(req.body));
-        let event = req.body;
-        let context = event.context;
-        let callback = s => console.log("callback:", s);
-        Alexa.handler(event, context, callback);
+        let body = req.body;
+        console.log("/alexa:", JSON.stringify(body));
+        let senderID = body.session.user.userId;
+        let message = body.intent.slots.MessageText.value;
+        sendTextRequest(senderID, message, "", alexa);
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
@@ -455,12 +455,12 @@ function buildApiAiRequestOptions(senderID) {
             }))).catch(err => console.error(err));
 }
 
-function sendTextRequest(senderID, message, url = "") {
+function sendTextRequest(senderID, message, url = "", ui = facebook) {
     buildApiAiRequestOptions(senderID)
         .then(options => {
-            var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+            let request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .textRequest(message, options);
-            sendApiAiRequest(request, senderID, url);
+            sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
 }
 
