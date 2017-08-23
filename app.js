@@ -171,13 +171,24 @@ function buildToken(userId = 0, duration) {
     }
     return token;
 }
+
+
+app.post('/alexa', function (req, res) {
+    try {
+        console.log("/alexa:", JASON.stringify(req))
+
+        res.sendStatus(200);
+    } catch (err) {
+        console.error("caught Error at /alexa with req: %s; res: %s :", req.body, res, err);
+    }
+});
+
+
 /*
- * Use your own validation token. Check that the token used in the Webhook 
+ * Use your own validation token. Check that the token used in the Webhook
  * setup is the same token used here.
  *
  */
-
-
 app.get('/webhook', function (req, res) {
     try {
         if (req.query['hub.mode'] === 'subscribe' &&
