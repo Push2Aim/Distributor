@@ -11,6 +11,7 @@ function loadEnvironmentVariables() {
 exports.handler = function(event, context, callback){
     var alexa = Alexa.handler(event, context, callback);
     alexa.appId = process.env.ALEXA_APPLICAITON_ID;
+    console.log("appId:",alexa.appId,process.env.ALEXA_APPLICAITON_ID);
     alexa.registerHandlers(handlers);
     alexa.execute();
 };
