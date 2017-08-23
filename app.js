@@ -178,7 +178,7 @@ app.post('/alexa', function (req, res) {
         console.log("/alexa:", JSON.stringify(req.body));
         let event = req.body;
         let context = event.context;
-        let callback = s => console.log("callback:",s);
+        let callback = s => console.log("callback:", s);
         Alexa.handler(event, context, callback);
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
@@ -539,9 +539,9 @@ function notify(recipientId, response) {
                 makeMessage(response.sessionId + " requested you in HeyBuddy"));
         });
     }
-
-function sendApiAiRequest(request, senderID, url) {
-    sendTypingOn(senderID);
+const facebook = require("./server/facebook");
+function sendApiAiRequest(request, senderID, url, ui = facebook) {
+    ui.sendTypingOn(senderID);
 
     request.on('response', function (response) {
         console.log("ApiAi Response: ", JSON.stringify(response));
@@ -549,8 +549,8 @@ function sendApiAiRequest(request, senderID, url) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-            sendMessages(senderID, messages, response, url);
-        else sendSpeech(senderID, response.result.fulfillment.speech);
+            ui.sendMessages(senderID, messages, response, url);
+        else ui.sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
     request.on('error', function (error) {
@@ -560,19 +560,6 @@ function sendApiAiRequest(request, senderID, url) {
     request.end();
 }
 
-function sendSpeech(recipientId, messageText) {
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            text: messageText,
-            metadata: "DEVELOPER_DEFINED_METADATA"
-        }
-    };
-
-    callSendAPI(messageData);
-}
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
     resolve = resolve || function (mes, id, messages) {
             return console.log(mes, id, messages)
@@ -731,11 +718,11 @@ function receivedAccountLink(event) {
     console.log("Received account link event with for user %d with status %s " +
         "and auth code %s ", senderID, status, authCode);
 }
+
 /*
  * Send an image using the Send API.
  *
  */
-
 function sendImageMessage(recipientId, url, callback, timeOut) {
     var messageData = {
         recipient: {
@@ -858,7 +845,6 @@ function sendFileMessage(recipientId) {
  * Send a text message using the Send API.
  *
  */
-
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
     messageText = messageText.split(" action: ")[0];
     var messageData = {
@@ -873,11 +859,11 @@ function sendTextMessage(recipientId, messageText, callback, timeOut) {
 
     callSendAPI(messageData, callback, timeOut);
 }
+
 /*
  * Send a button message using the Send API.
  *
  */
-
 function sendButtonMessage(recipientId) {
     var messageData = {
         recipient: {
@@ -1162,11 +1148,6 @@ function sendAccountLinking(recipientId) {
     callSendAPI(messageData);
 }
 
-/*
- * Call the Send API. The message data goes in the body. If successful, we'll 
- * get the message id in a response 
- *
- */
 let takeABreak = function (senderID, callback, timeOut) {
     sendTypingOn(senderID);
     setTimeout(callback, timeOut);
@@ -1186,6 +1167,11 @@ function minimizeAttachment(messageData) {
     return messageData;
 }
 
+/*
+ * Call the Send API. The message data goes in the body. If successful, we'll
+ * get the message id in a response
+ *
+ */
 function callSendAPI(messageData, callback, timeOut) {
     let requestData = {
         uri: 'https://graph.facebook.com/v2.6/me/messages',
