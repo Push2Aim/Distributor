@@ -28,6 +28,7 @@ app.use(express.static('public'));
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== "production")
     loadEnvironmentVariables();
+
 function loadEnvironmentVariables() {
     let dotenv = require('dotenv');
     dotenv.load();
@@ -54,6 +55,7 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 }
 
 wakeUp(process.env.ADDRESSES.split(","));
+
 function wakeUp(addresses) {
     try {
         addresses.map((uri) => {
@@ -164,7 +166,7 @@ function buildToken(userId = 0, duration) {
             userId: userId,
             context: {xp: duration * 10}
         };
-    console.log("buildToken", token, xpToken[token]);
+        console.log("buildToken", token, xpToken[token]);
     } catch (err) {
         console.error("Error on buildToken", err);
     }
@@ -285,6 +287,7 @@ app.get('/authorize', function (req, res) {
         console.error("caught Error at /authorize with req: %s; res: %s :", req.body, res, err);
     }
 });
+
 /*
  * Verify that the callback came from Facebook. Using the App Secret from 
  * the App Dashboard, we can verify the signature that is sent with each 
@@ -316,6 +319,7 @@ function verifyRequestSignature(req, res, buf) {
         }
     }
 }
+
 /*
  * Authorization Event
  *
@@ -416,6 +420,7 @@ function receivedMessage(event) {
         sendEventRequest(senderID, "RANDOM_STUFF");
     }
 }
+
 // exports.sendEventRequest = sendEventRequest;
 function sendEventRequest(senderID, eventName, url) {
     let event = {
@@ -426,12 +431,13 @@ function sendEventRequest(senderID, eventName, url) {
     buildApiAiRequestOptions(senderID)
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
-                .eventRequest(event,options);
+                .eventRequest(event, options);
             sendApiAiRequest(request, senderID, url);
         }).catch(err => console.error(err));
 }
+
 // exports.sendTextRequest = sendTextRequest;
-function buildApiAiRequestOptions (senderID) {
+function buildApiAiRequestOptions(senderID) {
     return userInfoRequest(senderID)
         .then((userInfo) => db.getProfile(senderID)
             .then(userProfile => ({
@@ -448,6 +454,7 @@ function buildApiAiRequestOptions (senderID) {
                 ]
             }))).catch(err => console.error(err));
 }
+
 function sendTextRequest(senderID, message, url = "") {
     buildApiAiRequestOptions(senderID)
         .then(options => {
@@ -476,6 +483,7 @@ function userInfoRequest(userId) {
             });
     });
 }
+
 function takeAction(response) {
     let extractProfile = contexts => contexts
         .find(context => context.name === "userprofile").parameters;
@@ -537,8 +545,10 @@ function notify(recipientId, response, ui = facebook) {
             return sendMessage(recipientId,
                 makeMessage(response.sessionId + " requested you in HeyBuddy"));
         });
-    }
+}
+
 const facebook = require("./server/facebook");
+
 function sendApiAiRequest(request, senderID, url, ui = facebook) {
     ui.sendTypingOn(senderID);
 
@@ -583,6 +593,7 @@ function receivedDeliveryConfirmation(event) {
 
     console.log("All message before %d were delivered.", watermark);
 }
+
 /*
  * Postback Event
  *
@@ -644,6 +655,7 @@ function sendProfile(senderID, payload, url, ui = facebook) {
             return console.error(err);
         })
 }
+
 /*
  * Message Read Event
  *
@@ -665,6 +677,7 @@ function receivedMessageRead(event) {
 
     wakeUp(process.env.ADDRESSES.split(","));
 }
+
 /*
  * Account Link Event
  *
