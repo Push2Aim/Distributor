@@ -14,10 +14,8 @@ const
     bodyParser = require('body-parser'),
     crypto = require('crypto'),
     express = require('express'),
-    https = require('https'),
     request = require('request'),
-    apiAI = require('apiai'),
-    async = require('async');
+    apiAI = require('apiai');
 const db = require("./server/db.js");
 const profileBuilder = require("./server/profileBuilder.js");
 
