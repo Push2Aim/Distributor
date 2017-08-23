@@ -179,8 +179,9 @@ app.post('/alexa', function (req, res) {
 
         res.sendStatus(200);
     } catch (err) {
-        console.error("caught Error at /alexa with req: %s; res: %s :",
-            JSON.stringify(req.body), JSON.stringify(res), err);
+        console.error("caught Error at /alexa with req(%s):",
+            JSON.stringify(req.body), err);
+        res.error(err);
     }
 });
 
