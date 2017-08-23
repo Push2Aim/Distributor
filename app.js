@@ -509,9 +509,9 @@ function takeAction(response) {
     }
 }
 
-function notify(recipientId, response) {
+function notify(recipientId, response, ui = facebook) {
     function sendMessage(recipientId, message) {
-        sendGenericMessage(recipientId, message);
+        ui.sendGenericMessage(recipientId, message);
     }
 
     function makeMessage(title) {
@@ -624,7 +624,7 @@ function receivedPostback(event, url) {
     }
 }
 
-function sendProfile(senderID, payload, url) {
+function sendProfile(senderID, payload, url, ui = facebook) {
     return userInfoRequest(senderID)
         .then((userInfo) => profileBuilder(senderID)
             .then(userProfile => ({
@@ -640,7 +640,7 @@ function sendProfile(senderID, payload, url) {
                 ]
             }))
         )
-        .then(message => sendGenericMessage(senderID, message))
+        .then(message => ui.sendGenericMessage(senderID, message))
         .catch(err => {
             sendEventRequest(senderID, payload, url);
             return console.error(err);
@@ -687,86 +687,6 @@ function receivedAccountLink(event) {
         "and auth code %s ", senderID, status, authCode);
 }
 
-/*
- * Send a Structured Message (Generic Message type) using the Send API.
- *
- */
-function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
-    let duration = response ? response.result.parameters.duration || 0 : 0;
-    let amount = duration ? duration.amount : 30;
-    let ratio = "compact";
-    if (response && response.result && response.result.action) {
-        let split = response.result.action.split(":");
-        ratio = split[0] == "webview_height_ratio" ? split[1] : "compact";
-    }
-
-    function buildXpData() {
-        return "&token=" + buildToken(recipientId, amount)
-            + "&url=" + url;
-    }
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "generic",
-                    image_aspect_ratio: "square",
-                    elements: [{
-                        title: message.title.replace("$duration.amount", amount),
-                        subtitle: message.subtitle,
-                        // item_url: "https://push2aim.com",
-                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
-                        buttons: message.buttons.map(btn => {
-                            if (btn.postback.startsWith("+")) {
-                                return ({
-                                    type: "phone_number",
-                                    title: btn.text,
-                                    payload: btn.postback
-                                });
-                            } else if (btn.postback.startsWith("https://") || btn.postback.startsWith("http://")) {
-                                let url = btn.postback.replace("http://", "https://");
-                                if (url.startsWith("https://push2aim.github.io/webview/?duration="))
-                                    url += buildXpData();
-
-                                return ({
-                                    type: "web_url",
-                                    title: btn.text,
-                                    url: url,
-                                    webview_height_ratio: ratio,
-                                    messenger_extensions: true,
-                                });
-                            }else if (btn.postback === "") {
-                                return ({
-                                    type: "web_url",
-                                    title: btn.text,
-                                    url: "https://push2aim.github.io/webview/?duration=" + amount + buildXpData(),
-                                    webview_height_ratio: "compact",
-                                    messenger_extensions: true,
-                                });
-                            } else if (btn.postback === "element_share") {
-                                return ({
-                                    type: "element_share"
-                                });
-                            } else {
-                                return ({
-                                    type: "postback",
-                                    title: btn.text,
-                                    payload: btn.postback
-                                });
-                            }
-                        })
-                    }]
-                }
-            }
-        }
-    };
-
-    callSendAPI(messageData, callback, timeOut);
-}
 /*
  * Turn typing indicator on
  *
