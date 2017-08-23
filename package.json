@@ -10,6 +10,7 @@
     "node": "7.6.0"
   },
   "dependencies": {
+    "alexa-sdk": "^1.0.12",
     "apiai": "^4.0.1",
     "async": "^2.1.5",
     "body-parser": "~1.15.2",

@@ -172,12 +172,14 @@ function buildToken(userId = 0, duration) {
     return token;
 }
 
-
+import Alexa from "./server/alexa";
 app.post('/alexa', function (req, res) {
     try {
         console.log("/alexa:", JSON.stringify(req.body));
-
-        res.sendStatus(200);
+        let event = req.body;
+        let context = event.context;
+        let callback = s => res.sendStatus(200).send(s);
+        Alexa.handler(event, context, callback)
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
