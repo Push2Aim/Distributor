@@ -179,8 +179,9 @@ app.post('/alexa', function (req, res) {
         let body = req.body;
         console.log("/alexa:", JSON.stringify(body));
         let senderID = body.session.user.userId;
-        let message = body.request.intent.slots.MessageText.value;
-        sendTextRequest(senderID, message, "", alexa);
+        // let message = body.request.intent.slots.MessageText.value;
+        // sendTextRequest(senderID, message, "", alexa);
+        alexa.sendSpeech(senderID,"hi");
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
