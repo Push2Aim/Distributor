@@ -13,5 +13,11 @@ var handlers = {
 
     'HelloWorldIntent': function () {
         this.emit(':tell', 'Hello World!');
+    },
+
+    'Unhandled': function () {
+        console.log("UNHANDLED");
+        var message = 'Say yes to continue, or no to end the game.';
+        this.emit(':ask', message, message);
     }
 };
