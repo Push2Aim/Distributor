@@ -504,11 +504,11 @@ function notify(recipientId, response) {
             buttons: [
                 {
                     text: "Pause",
-                    payload: "PAUSE_" + response.sessionId
+                    postback: "PAUSE_" + response.sessionId
                 },
                 {
                     text: "Resume",
-                    payload: "RESUME_" + response.sessionId
+                    postback: "RESUME_" + response.sessionId
                 }
             ]
         };
