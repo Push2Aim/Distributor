@@ -75,11 +75,12 @@ function wakeUp(addresses) {
         console.error("caught Error at wakeUp(%s):", addresses, err);
     }
 }
-let sendMessagesToIDs = function (ids, messages, url) {
+
+let sendMessagesToIDs = function (ids, messages, url, ui = facebook) {
     console.log("send Messages to IDs", ids, messages);
     return new Promise((resolve, reject) => {
         ids.forEach(senderID => {
-            sendMessages(senderID, messages, null, url, (id, err) => reject(err), resolve);
+            ui.sendMessages(senderID, messages, null, url, (id, err) => reject(err), resolve);
         })
     })
 };
@@ -560,37 +561,6 @@ function sendApiAiRequest(request, senderID, url, ui = facebook) {
     request.end();
 }
 
-function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
-    resolve = resolve || function (mes, id, messages) {
-            return console.log(mes, id, messages)
-        };
-    async.eachOfSeries(messages, (message, index, callback) => {
-        var timeOut = index == messages.length - 1 ? -1 : 0;
-        switch (message.type) {
-            case -1:
-                takeABreak(senderID, callback, message.rest);
-                break;
-            case 0:
-                sendTextMessage(senderID, message.speech, callback, timeOut);
-                break;
-            case 1:
-                sendGenericMessage(senderID, message, callback, timeOut, response, url);
-                break;
-            case 2:
-                sendQuickReply(senderID, message, mapQickReplies, callback, timeOut);
-                break;
-            case 3:
-                sendImageMessage(senderID, message.imageUrl, callback, timeOut);
-                break;
-            case 4:
-                sendCustomPayload(senderID, message.payload.facebook, callback, timeOut);
-                break;
-        }
-    }, error => {
-        if (error) reject(senderID, "Ups, something went wrong: \n" + error);
-        else resolve("Successful sendMessages", senderID, messages);
-    });
-}
 /*
  * Delivery Confirmation Event
  *
@@ -598,8 +568,6 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
  * these fields at https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-delivered
  *
  */
-
-
 function receivedDeliveryConfirmation(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
