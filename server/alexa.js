@@ -1,7 +1,16 @@
 var Alexa = require('alexa-sdk');
 
+// Load environment variables from .env file
+if (process.env.NODE_ENV !== "production")
+    loadEnvironmentVariables();
+function loadEnvironmentVariables() {
+    let dotenv = require('dotenv');
+    dotenv.load();
+}
+
 exports.handler = function(event, context, callback){
     var alexa = Alexa.handler(event, context, callback);
+    alexa.appId = process.env.ALEXA_APPLICAITON_ID;
     alexa.registerHandlers(handlers);
     alexa.execute();
 };
