@@ -175,7 +175,7 @@ function buildToken(userId = 0, duration) {
 
 app.post('/alexa', function (req, res) {
     try {
-        console.log("/alexa:", JSON.stringify(req));
+        console.log("/alexa:", JSON.stringify(req.body));
 
         res.sendStatus(200);
     } catch (err) {
