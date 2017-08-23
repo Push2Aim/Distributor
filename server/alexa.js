@@ -9,7 +9,16 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
     console.log("sendMessages:", ...arguments);
 }
 function sendSpeech(recipientId, messageText) {
-    console.log("sendSpeech:", ...arguments);
+    return {
+        "version": "1.0",
+        "response": {
+            "outputSpeech": {
+                "type": "PlainText",
+                "text": messageText,
+            },
+            "shouldEndSession": false
+        }
+    }
 }
 
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
