@@ -901,8 +901,11 @@ function sendButtonMessage(recipientId) {
 function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
     let duration = response ? response.result.parameters.duration || 0 : 0;
     let amount = duration ? duration.amount : 30;
-    let split = response.result.action.split(":");
-    let ratio = split[0] == "webview_height_ratio" ? split[1] : "compact";
+    let ratio = "compact";
+    if (response && response.result && response.result.action) {
+        let split = response.result.action.split(":");
+        ratio = split[0] == "webview_height_ratio" ? split[1] : "compact";
+    }
 
     function buildXpData() {
         return "&token=" + buildToken(recipientId, amount)
