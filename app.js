@@ -175,11 +175,12 @@ function buildToken(userId = 0, duration) {
 
 app.post('/alexa', function (req, res) {
     try {
-        console.log("/alexa:", JASON.stringify(req))
+        console.log("/alexa:", JSON.stringify(req));
 
         res.sendStatus(200);
     } catch (err) {
-        console.error("caught Error at /alexa with req: %s; res: %s :", req.body, res, err);
+        console.error("caught Error at /alexa with req: %s; res: %s :",
+            JSON.stringify(req.body), JSON.stringify(res), err);
     }
 });
 
