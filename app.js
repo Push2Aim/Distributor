@@ -202,7 +202,7 @@ app.post('/alexa', function (req, res) {
         if (body.session.application.applicationId !== process.env.ALEXA_APPLICAITON_ID)
             throw new Error("ApplicationId does not match!");
 
-        getAlexaResponse(body).then(s => res.status(200).send());
+        getAlexaResponse(body).then(s => res.status(200).send(s));
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
