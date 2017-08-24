@@ -19,7 +19,8 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
             console.log("message:", JSON.stringify(message));
             switch (message.type) {
                 case 0:
-                    return sendTextMessage(senderID, message.speech);
+                    if (message.speech.length > 0)
+                        return sendTextMessage(senderID, message.speech);
                 default:
                     console.log("skipped:", JSON.stringify(message));
                     break;
