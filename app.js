@@ -189,6 +189,8 @@ function getAlexaResponse(body) {
                 return sendTextRequest(senderID, message, "", alexa);
             case "AMAZON.HelpIntent":
                 return sendEventRequest(senderID, "HELP", "", alexa);
+            case "AMAZON.StopIntent":
+                return alexa.stop();
             default:
                 return alexa.sendSpeech(senderID, "hi");
         }
