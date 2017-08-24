@@ -189,7 +189,7 @@ app.post('/alexa', function (req, res) {
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
-        return res.status(500).send(alexa.sendSpeech(0, "This Error occurred: " + err));
+        return res.status(200).send(alexa.sendSpeech(0, "This Error occurred: " + err));
     }
 });
 
@@ -427,7 +427,7 @@ function receivedMessage(event) {
 }
 
 // exports.sendEventRequest = sendEventRequest;
-function sendEventRequest(senderID, eventName, url) {
+function sendEventRequest(senderID, eventName, url, ui = facebook) {
     let event = {
         name: eventName,
         data: {}
@@ -437,7 +437,7 @@ function sendEventRequest(senderID, eventName, url) {
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .eventRequest(event, options);
-            sendApiAiRequest(request, senderID, url);
+            sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
 }
 
