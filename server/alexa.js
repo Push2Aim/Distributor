@@ -10,19 +10,22 @@ const
     async = require('async');
 
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
+    console.log("sendMessages:", ...arguments);
+
     let speech = response.result.fulfillment.speech;
     if (speech.length > 0)
         return sendSpeech(speech);
 
     async.eachOfSeries(messages, (message, index, callback) => {
+        console.log("message:", JSON.stringify(message));
         switch (message.type) {
             case 0:
                 return sendTextMessage(senderID, message.speech, callback);
             default:
                 console.log("skipped:", JSON.stringify(message));
-                callback;
                 break;
         }
+        callback;
     }, error => {
         if (error)
             return reject(senderID, "Ups, something went wrong: \n" + error);
