@@ -174,21 +174,32 @@ function buildToken(userId = 0, duration) {
 }
 
 const alexa = require("./server/alexa");
+
+function getUserId(body) {
+    let str = body.session.user.userId;
+    return str.substring(str.length - 36);
+}
+
+function getAlexaResponse(body) {
+    let senderID = getUserId(body);
+    if (body.request.type === "IntentRequest")
+        switch (body.request.intent.name) {
+            case "FreeText":
+                let message = body.request.intent.slots.MessageText.value;
+                return sendTextRequest(senderID, message, "", alexa);
+            case "AMAZON.HelpIntent":
+                return sendEventRequest(senderID, "HELP");
+            default:
+                return alexa.sendSpeech(senderID, "hi");
+        }
+
+}
+
 app.post('/alexa', function (req, res) {
     try {
         let body = req.body;
         console.log("/alexa:", JSON.stringify(body));
-        let senderID = body.session.user.userId;
-        if (body.request.type === "IntentRequest")
-            switch (body.request.intent.name) {
-                case "FreeText":
-                    let message = body.request.intent.slots.MessageText.value;
-                    return sendTextRequest(senderID, message, "", alexa);
-                case "AMAZON.HelpIntent":
-                    return sendEventRequest(senderID, "HELP");
-                default:
-                    return res.status(200).send(alexa.sendSpeech(senderID, "hi"));
-        }
+        res.status(200).send(getAlexaResponse(body));
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
