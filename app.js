@@ -194,7 +194,7 @@ function getAlexaResponse(body) {
             case "AMAZON.StopIntent":
                 return Promise.resolve(alexa.stop());
             default:
-                return Promise.resolve(alexa.sendSpeech(senderID, "hi"));
+                return Promise.resolve(alexa.sendSpeech(senderID, "This Action is not supported yet!"));
         }
 
 }
