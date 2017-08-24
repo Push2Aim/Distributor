@@ -433,13 +433,13 @@ function receivedMessage(event) {
         console.log("Quick reply for message %s with payload %s",
             messageId, quickReplyPayload);
         makeQuickReply(quickReplyPayload);
-        sendTextRequest(senderID, messageText);
+        sendTextRequest(senderID, messageText).then(s => s).catch(e => e);
     }
     else if (messageText) {
-        sendTextRequest(senderID, messageText);
+        sendTextRequest(senderID, messageText).then(s => s).catch(e => e);
     } else if (messageAttachments) {
         //ThumbsUpSticker: {"mid":"mid.1483466706080:70a65f8088","seq":48327,"sticker_id":369239263222822,"attachments":[{"type":"image","payload":{"url":"https://scontent.xx.fbcdn.net/t39.1997-6/851557_369239266556155_759568595_n.png?_nc_ad=z-m","sticker_id":369239263222822}}]}
-        sendEventRequest(senderID, "RANDOM_STUFF");
+        sendEventRequest(senderID, "RANDOM_STUFF").then(s => s).catch(e => e);
     }
 }
 
@@ -572,25 +572,25 @@ function notify(recipientId, response, ui = facebook) {
 const facebook = require("./server/facebook");
 
 function sendApiAiRequest(request, senderID, url, ui = facebook) {
-    let out;
     ui.sendTypingOn(senderID);
+    return new Promise((resolve, reject) => {
 
-    request.on('response', function (response) {
-        console.log("ApiAi Response: ", JSON.stringify(response));
-        takeAction(response);
-        let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
-            response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
-        if (messages)
-            out = ui.sendMessages(senderID, messages, response, url);
-        else out = ui.sendSpeech(senderID, response.result.fulfillment.speech);
-    });
+        request.on('response', function (response) {
+            console.log("ApiAi Response: ", JSON.stringify(response));
+            takeAction(response);
+            let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
+                response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
+            if (messages)
+                resolve(ui.sendMessages(senderID, messages, response, url));
+            else resolve(ui.sendSpeech(senderID, response.result.fulfillment.speech));
+        });
 
-    request.on('error', function (error) {
-        console.error("Error on sendApiAiRequest", error);
-        out = ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+        request.on('error', function (error) {
+            console.error("Error on sendApiAiRequest", error);
+            reject(ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error));
+        });
+        request.end();
     });
-    request.end();
-    return out;
 }
 
 /*
