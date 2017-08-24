@@ -38,6 +38,7 @@ function sendTypingOn(recipientId) {
 
 function sendSpeech(recipientId, messageText) {
     console.log("sendSpeech:", ...arguments);
+    messageText = messageText.split(" action: ")[0];
     return {
         "version": "1.0",
         "response": {
