@@ -188,7 +188,7 @@ function getAlexaResponse(body) {
                 let message = body.request.intent.slots.MessageText.value;
                 return sendTextRequest(senderID, message, "", alexa);
             case "AMAZON.HelpIntent":
-                return sendEventRequest(senderID, "HELP");
+                return sendEventRequest(senderID, "HELP", "", alexa);
             default:
                 return alexa.sendSpeech(senderID, "hi");
         }
@@ -199,6 +199,9 @@ app.post('/alexa', function (req, res) {
     try {
         let body = req.body;
         console.log("/alexa:", JSON.stringify(body));
+        if (body.session.application.applicationId !== process.env.ALEXA_APPLICAITON_ID)
+            throw new Error("ApplicationId does not match!");
+
         res.status(200).send(getAlexaResponse(body));
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
