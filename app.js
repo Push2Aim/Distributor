@@ -180,7 +180,7 @@ app.post('/alexa', function (req, res) {
         console.log("/alexa:", JSON.stringify(body));
         let senderID = body.session.user.userId;
         if (body.request.type === "IntentRequest")
-            switch (body.request.type.intent.name) {
+            switch (body.request.intent.name) {
                 case "FreeText":
                     let message = body.request.intent.slots.MessageText.value;
                     return sendTextRequest(senderID, message, "", alexa);
