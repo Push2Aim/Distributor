@@ -196,7 +196,8 @@ function getAlexaResponse(body) {
             default:
                 return Promise.resolve(alexa.sendSpeech(senderID, "This Action is not supported yet!"));
         }
-
+    else
+        return Promise.resolve(alexa.sendSpeech(senderID, "This Action is not supported yet!"))
 }
 
 app.post('/alexa', function (req, res) {
