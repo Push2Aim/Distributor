@@ -179,13 +179,17 @@ app.post('/alexa', function (req, res) {
         let body = req.body;
         console.log("/alexa:", JSON.stringify(body));
         let senderID = body.session.user.userId;
-        // let message = body.request.intent.slots.MessageText.value;
-        // sendTextRequest(senderID, message, "", alexa);
-        res.status(200).send(alexa.sendSpeech(senderID, "hi"));
+        switch (body.request.type) {
+            case "IntentRequest":
+                let message = body.request.intent.slots.MessageText.value;
+                return sendTextRequest(senderID, message, "", alexa);
+            default:
+                return res.status(200).send(alexa.sendSpeech(senderID, "hi"));
+        }
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
-        res.sendStatus(403);
+        return res.status(500).send(alexa.sendSpeech(0, "This Error occurred: " + err));
     }
 });
 
