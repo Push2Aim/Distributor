@@ -581,14 +581,14 @@ function sendApiAiRequest(request, senderID, url, ui = facebook) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-            return ui.sendMessages(senderID, messages, response, url);
-        else return ui.sendSpeech(senderID, response.result.fulfillment.speech);
-    }).then(o => out = o);
+            out = ui.sendMessages(senderID, messages, response, url);
+        else out = ui.sendSpeech(senderID, response.result.fulfillment.speech);
+    });
 
     request.on('error', function (error) {
         console.error("Error on sendApiAiRequest", error);
-        return ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
-    }).then(o => out = o);
+        out = ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+    });
     request.end();
     return out;
 }
