@@ -572,6 +572,7 @@ function notify(recipientId, response, ui = facebook) {
 const facebook = require("./server/facebook");
 
 function sendApiAiRequest(request, senderID, url, ui = facebook) {
+    let out;
     ui.sendTypingOn(senderID);
 
     request.on('response', function (response) {
@@ -582,13 +583,14 @@ function sendApiAiRequest(request, senderID, url, ui = facebook) {
         if (messages)
             return ui.sendMessages(senderID, messages, response, url);
         else return ui.sendSpeech(senderID, response.result.fulfillment.speech);
-    });
+    }).then(o => out = o);
 
     request.on('error', function (error) {
         console.error("Error on sendApiAiRequest", error);
         return ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
-    });
+    }).then(o => out = o);
     request.end();
+    return out;
 }
 
 /*
