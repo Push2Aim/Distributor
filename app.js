@@ -192,9 +192,9 @@ function getAlexaResponse(body) {
             case "AMAZON.HelpIntent":
                 return sendEventRequest(senderID, "HELP", "", alexa);
             case "AMAZON.StopIntent":
-                return new Promise.resolve(alexa.stop());
+                return Promise.resolve(alexa.stop());
             default:
-                return new Promise.resolve(alexa.sendSpeech(senderID, "hi"));
+                return Promise.resolve(alexa.sendSpeech(senderID, "hi"));
         }
 
 }
