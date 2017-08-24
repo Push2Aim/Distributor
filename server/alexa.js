@@ -6,9 +6,6 @@ module.exports = {
     sendGenericMessage: sendGenericMessage,
 };
 
-const
-    async = require('async');
-
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
     console.log("sendMessages:", ...arguments);
 
@@ -16,22 +13,22 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
     if (speech.length > 0)
         return sendSpeech(speech);
 
-    async.eachOfSeries(messages, (message, index, callback) => {
-        console.log("message:", JSON.stringify(message));
-        switch (message.type) {
-            case 0:
-                return sendTextMessage(senderID, message.speech, callback);
-            default:
-                console.log("skipped:", JSON.stringify(message));
-                break;
+    try {
+        for (let i = 0; i < messages.length; i++) {
+            let message = messages[i];
+            console.log("message:", JSON.stringify(message));
+            switch (message.type) {
+                case 0:
+                    return sendTextMessage(senderID, message.speech);
+                default:
+                    console.log("skipped:", JSON.stringify(message));
+                    break;
+            }
         }
-        callback;
-    }, error => {
-        if (error)
-            return reject(senderID, "Ups, something went wrong: \n" + error);
-        else
-            return sendSpeech(senderID, "This Action is not supported yet!");
-    });
+        return sendSpeech(senderID, "This Action is not supported yet!");
+    } catch (error) {
+        return reject(senderID, "Ups, something went wrong: \n" + error);
+    }
 }
 
 function sendTypingOn(recipientId) {
