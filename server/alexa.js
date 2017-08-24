@@ -28,7 +28,7 @@ function sendSpeech(recipientId, messageText) {
 }
 
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
-    console.log("sendTextMessage:", ...arguments);
+    sendSpeech(recipientId,messageText);
 }
 
 function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
