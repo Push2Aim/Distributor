@@ -11,7 +11,7 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
 
     let speech = response.result.fulfillment.speech;
     if (speech.length > 0)
-        return sendSpeech(speech);
+        return sendSpeech(senderID, speech);
 
     try {
         for (let i = 0; i < messages.length; i++) {
