@@ -36,6 +36,7 @@ function sendTypingOn(recipientId) {
 }
 
 function sendSpeech(recipientId, messageText) {
+    console.log("sendSpeech:", ...arguments);
     return {
         "version": "1.0",
         "response": {

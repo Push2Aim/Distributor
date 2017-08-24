@@ -202,7 +202,7 @@ app.post('/alexa', function (req, res) {
         if (body.session.application.applicationId !== process.env.ALEXA_APPLICAITON_ID)
             throw new Error("ApplicationId does not match!");
 
-        res.status(200).send(getAlexaResponse(body));
+        getAlexaResponse(body).then(s => res.status(200).send());
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
@@ -450,11 +450,11 @@ function sendEventRequest(senderID, eventName, url, ui = facebook) {
         data: {}
     };
 
-    buildApiAiRequestOptions(senderID)
+    return buildApiAiRequestOptions(senderID)
         .then(options => {
             var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .eventRequest(event, options);
-            sendApiAiRequest(request, senderID, url, ui);
+            return sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
 }
 
@@ -478,11 +478,11 @@ function buildApiAiRequestOptions(senderID) {
 }
 
 function sendTextRequest(senderID, message, url = "", ui = facebook) {
-    buildApiAiRequestOptions(senderID)
+    return buildApiAiRequestOptions(senderID)
         .then(options => {
             let request = apiAI(process.env.API_AI_ACCESS_TOKEN)
                 .textRequest(message, options);
-            sendApiAiRequest(request, senderID, url, ui);
+            return sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
 }
 
@@ -580,13 +580,13 @@ function sendApiAiRequest(request, senderID, url, ui = facebook) {
         let messages = response.result.fulfillment.data && response.result.fulfillment.data.distributor ?
             response.result.fulfillment.data.distributor : response.result.fulfillment.messages;
         if (messages)
-            ui.sendMessages(senderID, messages, response, url);
-        else ui.sendSpeech(senderID, response.result.fulfillment.speech);
+            return ui.sendMessages(senderID, messages, response, url);
+        else return ui.sendSpeech(senderID, response.result.fulfillment.speech);
     });
 
     request.on('error', function (error) {
         console.error("Error on sendApiAiRequest", error);
-        ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
+        return ui.sendTextMessage(senderID, "Ups, something went wrong: \n" + error);
     });
     request.end();
 }
