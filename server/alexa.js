@@ -10,6 +10,10 @@ const
     async = require('async');
 
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
+    let speech = response.result.fulfillment.speech;
+    if (speech.length > 0)
+        return sendSpeech(speech);
+
     async.eachOfSeries(messages, (message, index, callback) => {
         switch (message.type) {
             case 0:
