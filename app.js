@@ -187,6 +187,8 @@ function getAlexaResponse(body) {
             case "FreeText":
                 let message = body.request.intent.slots.MessageText.value;
                 return sendTextRequest(senderID, message, "", alexa);
+            case "AMAZON.CancelIntent":
+                return sendTextRequest(senderID, "cancel", "", alexa);
             case "AMAZON.HelpIntent":
                 return sendEventRequest(senderID, "HELP", "", alexa);
             case "AMAZON.StopIntent":
