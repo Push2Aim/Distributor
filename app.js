@@ -175,9 +175,13 @@ function buildToken(userId = 0, duration) {
 
 const alexa = require("./server/alexa");
 
+function getSessionId(body) {
+    return body.session.sessionId.replace("SessionId.", "");
+}
+
 function switchIntentRequest(body) {
     let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
-    let senderID = body.session.sessionId.replace("SessionId.","");
+    let senderID = getSessionId(body);
     switch (body.request.intent.name) {
         case "FreeText":
             let message = body.request.intent.slots.MessageText.value;
@@ -196,11 +200,10 @@ function switchIntentRequest(body) {
 }
 
 function getAlexaResponse(body) {
-    let senderID = body.session.sessionId;
     if (body.request.type === "IntentRequest")
         return switchIntentRequest(body);
     else if (body.request.type === "LaunchRequest")
-        return sendEventRequest(senderID, "WELCOME", "", alexa, token);
+        return sendEventRequest(getSessionId(body), "WELCOME", "", alexa, token);
     else
         return Promise.resolve(alexa.sendSpeech(0, "This Action is not supported yet!"))
 }
