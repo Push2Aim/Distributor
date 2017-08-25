@@ -22,6 +22,7 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
                 case 0:
                     if (message.speech.length > 0)
                         speech += message.speech;
+                    break;
                 default:
                     console.log("skipped:", JSON.stringify(message));
                     break;
