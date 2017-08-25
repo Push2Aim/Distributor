@@ -192,7 +192,9 @@ function getAlexaResponse(body) {
             case "AMAZON.HelpIntent":
                 return sendEventRequest(senderID, "HELP", "", alexa);
             case "AMAZON.StopIntent":
-                return Promise.resolve(alexa.stop());
+                let out =  sendEventRequest(senderID, "STOP", "", alexa);
+                out.response.shouldEndSession = true;
+                return out;
             default:
                 return sendEventRequest(senderID, body.request.intent.name, "", alexa);
         }

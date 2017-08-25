@@ -4,7 +4,6 @@ module.exports = {
     sendSpeech: sendSpeech,
     sendTextMessage: sendTextMessage,
     sendGenericMessage: sendGenericMessage,
-    stop: stop,
 };
 
 function sendMessages(senderID, messages, response, url, reject = sendTextMessage, resolve) {
@@ -47,18 +46,6 @@ function sendTypingOn(recipientId) {
     console.log("sendTypingOn:", ...arguments);
 }
 
-function stop() {
-    return {
-        "version": "1.0",
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",
-                "text": "Good bye.",
-            },
-            "shouldEndSession": true
-        }
-    }
-}
 function sendSpeech(recipientId, messageText) {
     console.log("sendSpeech:", ...arguments);
     messageText = messageText.split(" action: ")[0];
