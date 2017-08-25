@@ -23,6 +23,9 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
                     if (message.speech.length > 0)
                         speech += message.speech;
                     break;
+                case 2:
+                    speech += quickReplyToSpeech(message);
+                    break;
                 default:
                     console.log("skipped:", JSON.stringify(message));
                     break;
@@ -32,6 +35,12 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
     } catch (error) {
         return reject(senderID, "Ups, something went wrong: \n" + error);
     }
+}
+
+function quickReplyToSpeech(message) {
+    if (message && message.title && message.replies)
+        return message.title + " You can choose: " + message.replies().join(", ");
+    else return "";
 }
 
 function sendTypingOn(recipientId) {
