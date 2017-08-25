@@ -87,6 +87,13 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
         out.title = message.title.replace("$duration.amount", amount);
     if (message.subtitle)
         out.text = message.subtitle;
-
+    else if (message.buttons && message.buttons.length > 0)
+        out.text = buildPostback(message.buttons[0], amount);
     return out;
+}
+
+function buildPostback(button, amount) {
+    return !button.postback || button.postback === "" ?
+        "https://push2aim.github.io/webview/?duration=" + amount :
+        button.postback;
 }
