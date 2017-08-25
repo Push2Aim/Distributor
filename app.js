@@ -182,17 +182,18 @@ function getUserId(body) {
 
 function getAlexaResponse(body) {
     let senderID = getUserId(body);
+    let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
     if (body.request.type === "IntentRequest")
         switch (body.request.intent.name) {
             case "FreeText":
                 let message = body.request.intent.slots.MessageText.value;
-                return sendTextRequest(senderID, message, "", alexa);
+                return sendTextRequest(senderID, message, "", alexa, token);
             case "AMAZON.CancelIntent":
-                return sendTextRequest(senderID, "cancel", "", alexa);
+                return sendTextRequest(senderID, "cancel", "", alexa, token);
             case "AMAZON.HelpIntent":
-                return sendEventRequest(senderID, "HELP", "", alexa);
+                return sendEventRequest(senderID, "HELP", "", alexa, token);
             case "AMAZON.StopIntent":
-                let out =  sendEventRequest(senderID, "STOP", "", alexa);
+                let out = sendEventRequest(senderID, "STOP", "", alexa, token);
                 out.response.shouldEndSession = true;
                 return out;
             default:
@@ -451,7 +452,7 @@ function receivedMessage(event) {
 }
 
 // exports.sendEventRequest = sendEventRequest;
-function sendEventRequest(senderID, eventName, url, ui = facebook) {
+function sendEventRequest(senderID, eventName, url, ui = facebook, token = process.env.API_AI_ACCESS_TOKEN) {
     let event = {
         name: eventName,
         data: {}
@@ -459,7 +460,7 @@ function sendEventRequest(senderID, eventName, url, ui = facebook) {
 
     return buildApiAiRequestOptions(senderID)
         .then(options => {
-            var request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+            var request = apiAI(token)
                 .eventRequest(event, options);
             return sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
@@ -484,10 +485,10 @@ function buildApiAiRequestOptions(senderID) {
             }))).catch(err => console.error(err));
 }
 
-function sendTextRequest(senderID, message, url = "", ui = facebook) {
+function sendTextRequest(senderID, message, url = "", ui = facebook, token = process.env.API_AI_ACCESS_TOKEN) {
     return buildApiAiRequestOptions(senderID)
         .then(options => {
-            let request = apiAI(process.env.API_AI_ACCESS_TOKEN)
+            let request = apiAI(token)
                 .textRequest(message, options);
             return sendApiAiRequest(request, senderID, url, ui);
         }).catch(err => console.error(err));
