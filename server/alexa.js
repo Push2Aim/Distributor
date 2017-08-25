@@ -39,7 +39,7 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
 
 function quickReplyToSpeech(message) {
     if (message && message.title && message.replies)
-        return message.title + " You can choose: " + message.replies().join(", ");
+        return message.title + " You can choose: " + message.replies.join(", ");
     else return "";
 }
 
