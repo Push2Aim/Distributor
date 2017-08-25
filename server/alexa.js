@@ -21,13 +21,13 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
             switch (message.type) {
                 case 0:
                     if (message.speech.length > 0)
-                        return sendTextMessage(senderID, message.speech);
+                        speech += message.speech;
                 default:
                     console.log("skipped:", JSON.stringify(message));
                     break;
             }
         }
-        return sendSpeech(senderID, "This Action is not supported yet!");
+        return sendSpeech(senderID, speech || "This Action is not supported yet!");
     } catch (error) {
         return reject(senderID, "Ups, something went wrong: \n" + error);
     }
