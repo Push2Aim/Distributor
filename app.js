@@ -174,14 +174,8 @@ function buildToken(userId = 0, duration) {
 }
 
 const alexa = require("./server/alexa");
-
-function getUserId(body) {
-    let str = body.session.user.userId;
-    return str.substring(str.length - 36);
-}
-
 function getAlexaResponse(body) {
-    let senderID = getUserId(body);
+    let senderID = body.session.sessionId;
     let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
     if (body.request.type === "IntentRequest")
         switch (body.request.intent.name) {
