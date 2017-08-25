@@ -196,8 +196,11 @@ function switchIntentRequest(body) {
 }
 
 function getAlexaResponse(body) {
+    let senderID = body.session.sessionId;
     if (body.request.type === "IntentRequest")
         return switchIntentRequest(body);
+    else if (body.request.type === "LaunchRequest")
+        return sendEventRequest(senderID, "WELCOME", "", alexa, token);
     else
         return Promise.resolve(alexa.sendSpeech(0, "This Action is not supported yet!"))
 }
