@@ -177,7 +177,7 @@ const alexa = require("./server/alexa");
 
 function switchIntentRequest(body) {
     let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
-    let senderID = body.session.sessionId;
+    let senderID = body.session.sessionId.replace("SessionId.","");
     switch (body.request.intent.name) {
         case "FreeText":
             let message = body.request.intent.slots.MessageText.value;
