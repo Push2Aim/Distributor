@@ -27,7 +27,7 @@ function sendMessages(senderID, messages, response, url, reject = sendTextMessag
                     break;
                 case 3:
                 case 1:
-                    card = sendGenericMessage(senderID, message, callback, timeOut, response, url);
+                    card = sendGenericMessage(senderID, message, null, null, response, url);
                     break;
                 default:
                     console.log("skipped:", JSON.stringify(message));
@@ -68,7 +68,7 @@ function sendSpeech(recipientId, messageText, card) {
 }
 
 function sendTextMessage(recipientId, messageText, callback, timeOut) {
-    sendSpeech(recipientId,messageText);
+    return sendSpeech(recipientId,messageText);
 }
 
 function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
