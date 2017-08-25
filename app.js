@@ -174,27 +174,32 @@ function buildToken(userId = 0, duration) {
 }
 
 const alexa = require("./server/alexa");
-function getAlexaResponse(body) {
-    let senderID = body.session.sessionId;
+
+function switchIntentRequest(body) {
     let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
+    let senderID = body.session.sessionId;
+    switch (body.request.intent.name) {
+        case "FreeText":
+            let message = body.request.intent.slots.MessageText.value;
+            return sendTextRequest(senderID, message, "", alexa, token);
+        case "AMAZON.CancelIntent":
+            return sendTextRequest(senderID, "cancel", "", alexa, token);
+        case "AMAZON.HelpIntent":
+            return sendEventRequest(senderID, "HELP", "", alexa, token);
+        case "AMAZON.StopIntent":
+            let out = sendEventRequest(senderID, "STOP", "", alexa, token);
+            out.response.shouldEndSession = true;
+            return out;
+        default:
+            return sendEventRequest(senderID, body.request.intent.name, "", alexa);
+    }
+}
+
+function getAlexaResponse(body) {
     if (body.request.type === "IntentRequest")
-        switch (body.request.intent.name) {
-            case "FreeText":
-                let message = body.request.intent.slots.MessageText.value;
-                return sendTextRequest(senderID, message, "", alexa, token);
-            case "AMAZON.CancelIntent":
-                return sendTextRequest(senderID, "cancel", "", alexa, token);
-            case "AMAZON.HelpIntent":
-                return sendEventRequest(senderID, "HELP", "", alexa, token);
-            case "AMAZON.StopIntent":
-                let out = sendEventRequest(senderID, "STOP", "", alexa, token);
-                out.response.shouldEndSession = true;
-                return out;
-            default:
-                return sendEventRequest(senderID, body.request.intent.name, "", alexa);
-        }
+        return switchIntentRequest(body);
     else
-        return Promise.resolve(alexa.sendSpeech(senderID, "This Action is not supported yet!"))
+        return Promise.resolve(alexa.sendSpeech(0, "This Action is not supported yet!"))
 }
 
 app.post('/alexa', function (req, res) {
