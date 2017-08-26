@@ -237,7 +237,7 @@ alexaRouter.post('/', function (req, res) {
 });
 
 function isTimestampValid(body) {
-    console.log(new Date(), body.request.timestamp);
+    console.log("TimeStamp:", new Date(), body.request.timestamp);
     return true;
 }
 
