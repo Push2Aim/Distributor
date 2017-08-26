@@ -341,7 +341,6 @@ app.get('/authorize', function (req, res) {
     }
 });
 
-const alexaVerifier = require("./server/alexaRequestSignatureVerifier");
 /*
  * Verify that the callback came from Facebook. Using the App Secret from 
  * the App Dashboard, we can verify the signature that is sent with each 
@@ -351,8 +350,6 @@ const alexaVerifier = require("./server/alexaRequestSignatureVerifier");
  *
  */
 function verifyRequestSignature(req, res, buf) {
-    verifyAlexaSignature(req.headers);
-
     var signature = req.headers["x-hub-signature"];
 
     if (!signature) {
@@ -374,10 +371,6 @@ function verifyRequestSignature(req, res, buf) {
             // throw new Error("Couldn't validate the request signature.");
         }
     }
-}
-
-function verifyAlexaSignature(headers) {
-
 }
 
 /*
