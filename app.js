@@ -219,7 +219,7 @@ app.post('/alexa', function (req, res) {
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
-        return res.status(200).send(alexa.sendSpeech(0, "This Error occurred: " + err));
+        return res.status(500).json({error: err});
     }
 });
 
