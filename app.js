@@ -190,7 +190,7 @@ function getSessionId(body) {
 }
 
 function switchIntentRequest(body) {
-    let token = body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
+    let token = getApiAiToken(body);
     let senderID = getSessionId(body);
     switch (body.request.intent.name) {
         case "FreeText":
@@ -209,7 +209,12 @@ function switchIntentRequest(body) {
     }
 }
 
+function getApiAiToken(body) {
+    return body.request.locale === "de-DE" ? process.env.API_AI_ACCESS_TOKEN_DE : process.env.API_AI_ACCESS_TOKEN;
+}
+
 function getAlexaResponse(body) {
+    let token = getApiAiToken(body);
     if (body.request.type === "IntentRequest")
         return switchIntentRequest(body);
     else if (body.request.type === "LaunchRequest")
