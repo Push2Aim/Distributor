@@ -224,6 +224,9 @@ alexaRouter.post('/', function (req, res) {
         console.log("/alexa:", JSON.stringify(body));
         if (body.session.application.applicationId !== process.env.ALEXA_APPLICAITON_ID)
             throw new Error("ApplicationId does not match!");
+        if (!isTimestampValid(body))
+            throw new Error("The Timestamp is invalid!");
+
 
         getAlexaResponse(body).then(s => res.status(200).send(s));
     } catch (err) {
@@ -232,6 +235,11 @@ alexaRouter.post('/', function (req, res) {
         return res.status(500).json({error: err});
     }
 });
+
+function isTimestampValid(body) {
+    console.log(new Date(), body.request.timestamp);
+    return true;
+}
 
 
 /*
