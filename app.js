@@ -20,6 +20,16 @@ const db = require("./server/db.js");
 const profileBuilder = require("./server/profileBuilder.js");
 
 var app = express();
+
+var verifier = require('alexa-verifier-middleware');
+// create a router and attach to express before doing anything else
+var alexaRouter = express.Router();
+app.use('/alexa', alexaRouter);
+
+// attach the verifier middleware first because it needs the entire
+// request body, and express doesn't expose this on the request object
+alexaRouter.use(verifier);
+
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
 app.use(bodyParser.json({verify: verifyRequestSignature}));
@@ -208,7 +218,7 @@ function getAlexaResponse(body) {
         return Promise.resolve(alexa.sendSpeech(0, "This Action is not supported yet!"))
 }
 
-app.post('/alexa', function (req, res) {
+alexaRouter.post('/', function (req, res) {
     try {
         let body = req.body;
         console.log("/alexa:", JSON.stringify(body));
@@ -323,6 +333,7 @@ app.get('/authorize', function (req, res) {
     }
 });
 
+const alexaVerifier = require("./server/alexaRequestSignatureVerifier");
 /*
  * Verify that the callback came from Facebook. Using the App Secret from 
  * the App Dashboard, we can verify the signature that is sent with each 
@@ -331,8 +342,9 @@ app.get('/authorize', function (req, res) {
  * https://developers.facebook.com/docs/graph-api/webhooks#setup
  *
  */
-
 function verifyRequestSignature(req, res, buf) {
+    verifyAlexaSignature(req.headers);
+
     var signature = req.headers["x-hub-signature"];
 
     if (!signature) {
@@ -354,6 +366,10 @@ function verifyRequestSignature(req, res, buf) {
             // throw new Error("Couldn't validate the request signature.");
         }
     }
+}
+
+function verifyAlexaSignature(headers) {
+
 }
 
 /*
