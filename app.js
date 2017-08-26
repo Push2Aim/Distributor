@@ -235,7 +235,10 @@ alexaRouter.post('/', function (req, res) {
             throw new Error("The Timestamp is invalid!");
 
 
-        getAlexaResponse(body).then(s => res.status(200).send(s));
+        getAlexaResponse(body).then(s => {
+            console.log("Alexa final Response:", JSON.stringify(s));
+            return res.status(200).send(s);
+        });
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
