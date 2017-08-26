@@ -338,7 +338,7 @@ function verifyRequestSignature(req, res, buf) {
     if (!signature) {
         // For testing, let's log an error. In production, you should throw an
         // error.
-        console.error("Couldn't validate the signature.");
+        console.error("Couldn't validate the signature: " + JSON.stringify(req.headers));
         // throw new Error("Couldn't validate the signature.");
     } else {
         var elements = signature.split('=');
@@ -350,6 +350,7 @@ function verifyRequestSignature(req, res, buf) {
             .digest('hex');
 
         if (signatureHash != expectedHash) {
+            console.error("Couldn't validate the request signature.");
             // throw new Error("Couldn't validate the request signature.");
         }
     }
