@@ -186,7 +186,8 @@ function buildToken(userId = 0, duration) {
 const alexa = require("./server/alexa");
 
 function getSessionId(body) {
-    return body.session.sessionId.replace("SessionId.", "");
+    let str = body.session.sessionId;
+    return str.substr(str.length-36);
 }
 
 function switchIntentRequest(body) {
@@ -215,10 +216,11 @@ function getApiAiToken(body) {
 
 function getAlexaResponse(body) {
     let token = getApiAiToken(body);
+    let senderID = getSessionId(body);
     if (body.request.type === "IntentRequest")
         return switchIntentRequest(body);
     else if (body.request.type === "LaunchRequest")
-        return sendEventRequest(getSessionId(body), "WELCOME", "", alexa, token);
+        return sendEventRequest(senderID, "WELCOME", "", alexa, token);
     else
         return Promise.resolve(alexa.sendSpeech(0, "This Action is not supported yet!"))
 }
