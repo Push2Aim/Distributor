@@ -232,7 +232,7 @@ alexaRouter.post('/', function (req, res) {
     } catch (err) {
         console.error("caught Error at /alexa with req(%s):",
             JSON.stringify(req.body), err);
-        return res.status(500).json({error: err});
+        return res.status(400).json({error: err});
     }
 });
 
