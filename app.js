@@ -928,6 +928,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                         // item_url: "https://push2aim.com",
                         image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
                         buttons: message.buttons.map(btn => {
+                            if (btn.postback)
                             if (btn.postback.startsWith("+")) {
                                 return ({
                                     type: "phone_number",
@@ -958,13 +959,12 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                                 return ({
                                     type: "element_share"
                                 });
-                            } else {
-                                return ({
-                                    type: "postback",
-                                    title: btn.text,
-                                    payload: btn.postback
-                                });
                             }
+                            return ({
+                                type: "postback",
+                                title: btn.text,
+                                payload: btn.postback
+                            });
                         })
                     }]
                 }
