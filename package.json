@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./app.js",
-    "migrate": "NODE_ENV=production knex migrate:latest"
+    "migrate": "knex migrate:latest --env production"
   },
   "engines": {
     "node": "8.7.0",

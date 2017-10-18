@@ -1,3 +1,11 @@
+// Load environment variables from .env file
+if (process.env.NODE_ENV !== "production")
+    loadEnvironmentVariables();
+function loadEnvironmentVariables() {
+    let dotenv = require('dotenv');
+    dotenv.load();
+}
+
 // Update with your config settings.
 
 module.exports = {
@@ -5,8 +13,8 @@ module.exports = {
   development: {
       client: 'postgresql',
       connection: {
-          database: 'HeyBuddy',
-          user:     'timomorawitz',
+          database: process.env.DEV_DB_DATABASE,
+          user:     process.env.DEV_DB_USER,
           password: ''
       },
       pool: {
