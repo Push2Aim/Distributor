@@ -24,6 +24,11 @@ create file in Project `/.env`, containing your Environment Variables:
     DEV_DB_DATABASE = 
     DEV_DB_USER = 
 
+## Start PostgreSQL on Arch
+run in Terminal
+
+    sudo systemctl start postgresql
+
 ## Run Locally
 run in Terminal
 
