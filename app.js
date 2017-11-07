@@ -947,7 +947,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                                     webview_height_ratio: ratio,
                                     messenger_extensions: true,
                                 });
-                            }else if (btn.postback === "") {
+                            }else if (!btn.postback || btn.postback.length === 0) {
                                 return ({
                                     type: "web_url",
                                     title: btn.text,
