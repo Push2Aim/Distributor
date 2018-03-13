@@ -923,7 +923,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                     template_type: "generic",
                     image_aspect_ratio: "square",
                     elements: [{
-                        title: message.title.replace("$duration.amount", amount),
+                        title: message.title.replace("$duration.amount", amount) || "workout",
                         subtitle: message.subtitle,
                         // item_url: "https://push2aim.com",
                         image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
