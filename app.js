@@ -901,6 +901,7 @@ function sendButtonMessage(recipientId) {
 function sendGenericMessage(recipientId, message, callback, timeOut, response, url) {
     let duration = response ? response.result.parameters.duration || 0 : 0;
     let amount = duration ? duration.amount : 30;
+    let location = response.result.parameters.location ? response.result.parameters.location : "home";
     let ratio = "compact";
     if (response && response.result && response.result.action) {
         let split = response.result.action.split(":");
@@ -923,10 +924,10 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                     template_type: "generic",
                     image_aspect_ratio: "square",
                     elements: [{
-                        title: message.title.replace("$duration.amount", amount) || "workout",
+                        title: message.title.replace("!duration.amount", amount).replace("!location",location),
                         subtitle: message.subtitle,
                         // item_url: "https://push2aim.com",
-                        image_url: message.imageUrl || "https://jspicgen.herokuapp.com/?type=WYN&duration=" + amount,
+                        image_url: message.imageUrl.replace("!duration.amount", amount).replace("!location",location),
                         buttons: message.buttons.map(btn => {
                             if (btn.postback)
                             if (btn.postback.startsWith("+")) {
@@ -963,7 +964,7 @@ function sendGenericMessage(recipientId, message, callback, timeOut, response, u
                             return ({
                                 type: "postback",
                                 title: btn.text,
-                                payload: btn.postback
+                                payload: btn.postback.replace("!duration.amount", amount).replace("!location",location)
                             });
                         })
                     }]
